@@ -1,0 +1,2407 @@
+[
+  {
+    "id": 0,
+    "label": "Boys' Love · Primarily Male Cast · Primarily Adult Cast",
+    "top_tags": [
+      "Boys' Love",
+      "Primarily Male Cast",
+      "Primarily Adult Cast",
+      "Male Protagonist",
+      "LGBTQ+ Themes",
+      "Work"
+    ],
+    "count": 1230,
+    "centroid": {
+      "x": -0.671,
+      "y": 0.2182,
+      "z": -0.194
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 1,
+    "label": "Cluster 1",
+    "top_tags": [],
+    "count": 5141,
+    "centroid": {
+      "x": 4.8989,
+      "y": 0.4688,
+      "z": 0.0642
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 2,
+    "label": "Shounen · American Football · Gore",
+    "top_tags": [
+      "Shounen",
+      "American Football",
+      "Gore",
+      "Poker",
+      "Male Protagonist",
+      "Post-Apocalyptic"
+    ],
+    "count": 1622,
+    "centroid": {
+      "x": -4.9235,
+      "y": 1.4862,
+      "z": 0.6968
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 3,
+    "label": "Boys' Love · Feet · Yandere",
+    "top_tags": [
+      "Boys' Love",
+      "Feet",
+      "Yandere",
+      "Konbini",
+      "Cannibalism",
+      "Dancing"
+    ],
+    "count": 2495,
+    "centroid": {
+      "x": -0.4148,
+      "y": 1.0325,
+      "z": -4.873
+    },
+    "color": "#6b7280"
+  },
+  {
+    "id": 4,
+    "label": "Seinen · Skateboarding · Full Color",
+    "top_tags": [
+      "Seinen",
+      "Skateboarding",
+      "Full Color",
+      "Firefighters",
+      "Body Horror",
+      "American Football"
+    ],
+    "count": 1807,
+    "centroid": {
+      "x": -3.1215,
+      "y": 3.3577,
+      "z": 2.2609
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 5,
+    "label": "Long Strip · Full Color · Male Protagonist",
+    "top_tags": [
+      "Long Strip",
+      "Full Color",
+      "Male Protagonist",
+      "Gore",
+      "Super Power",
+      "Demons"
+    ],
+    "count": 235,
+    "centroid": {
+      "x": -3.0252,
+      "y": -4.0225,
+      "z": 0.4015
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 6,
+    "label": "Full Color · Heterosexual · Female Protagonist",
+    "top_tags": [
+      "Full Color",
+      "Heterosexual",
+      "Female Protagonist",
+      "Historical",
+      "School",
+      "Primarily Adult Cast"
+    ],
+    "count": 606,
+    "centroid": {
+      "x": -1.4128,
+      "y": 0.2921,
+      "z": 4.9762
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 7,
+    "label": "Shoujo · Full Color · Isekai",
+    "top_tags": [
+      "Shoujo",
+      "Full Color",
+      "Isekai",
+      "Band",
+      "Rugby",
+      "Cowboys"
+    ],
+    "count": 1786,
+    "centroid": {
+      "x": -3.8559,
+      "y": 2.5848,
+      "z": -1.9588
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 8,
+    "label": "Post-Apocalyptic · Robots · Zombie",
+    "top_tags": [
+      "Post-Apocalyptic",
+      "Robots",
+      "Zombie",
+      "Dystopian",
+      "Artificial Intelligence",
+      "Cyberpunk"
+    ],
+    "count": 1044,
+    "centroid": {
+      "x": -0.351,
+      "y": -0.6599,
+      "z": -0.1388
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 9,
+    "label": "Josei · Female Protagonist · Heterosexual",
+    "top_tags": [
+      "Josei",
+      "Female Protagonist",
+      "Heterosexual",
+      "School",
+      "Primarily Adult Cast",
+      "Male Protagonist"
+    ],
+    "count": 621,
+    "centroid": {
+      "x": -1.4583,
+      "y": 0.5851,
+      "z": 0.9034
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 10,
+    "label": "Shoujo · School · Manzai",
+    "top_tags": [
+      "Shoujo",
+      "School",
+      "Manzai",
+      "Youkai",
+      "Slapstick",
+      "Twins"
+    ],
+    "count": 558,
+    "centroid": {
+      "x": -0.4126,
+      "y": 4.9636,
+      "z": 1.9926
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 11,
+    "label": "Male Protagonist · Manzai · Seinen",
+    "top_tags": [
+      "Male Protagonist",
+      "Manzai",
+      "Seinen",
+      "Family Life",
+      "Rural",
+      "Full Color"
+    ],
+    "count": 188,
+    "centroid": {
+      "x": -3.9276,
+      "y": -0.9885,
+      "z": -1.0115
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 12,
+    "label": "Long Strip · Full Color · Anthology",
+    "top_tags": [
+      "Long Strip",
+      "Full Color",
+      "Anthology",
+      "Konbini",
+      "Virtual World",
+      "Video Games"
+    ],
+    "count": 437,
+    "centroid": {
+      "x": 0.0907,
+      "y": -4.9736,
+      "z": -0.1069
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 13,
+    "label": "Boys' Love · Male Protagonist · Manzai",
+    "top_tags": [
+      "Boys' Love",
+      "Male Protagonist",
+      "Manzai",
+      "Unrequited Love",
+      "Primarily Adult Cast",
+      "Work"
+    ],
+    "count": 444,
+    "centroid": {
+      "x": -1.2578,
+      "y": 3.6459,
+      "z": -3.1934
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 14,
+    "label": "Yuri · Boys' Love · Amputation",
+    "top_tags": [
+      "Yuri",
+      "Boys' Love",
+      "Amputation",
+      "Female Protagonist",
+      "Maids",
+      "Age Gap"
+    ],
+    "count": 394,
+    "centroid": {
+      "x": -1.3296,
+      "y": -0.2557,
+      "z": -1.8348
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 15,
+    "label": "Full Color · Female Protagonist · Long Strip",
+    "top_tags": [
+      "Full Color",
+      "Female Protagonist",
+      "Long Strip",
+      "Go",
+      "Heterosexual",
+      "Advertisement"
+    ],
+    "count": 147,
+    "centroid": {
+      "x": -1.3636,
+      "y": -1.4241,
+      "z": 2.8968
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 16,
+    "label": "Gyaru · Fashion · Basketball",
+    "top_tags": [
+      "Gyaru",
+      "Fashion",
+      "Basketball",
+      "School",
+      "Female Protagonist",
+      "Makeup"
+    ],
+    "count": 660,
+    "centroid": {
+      "x": -0.0821,
+      "y": 0.5359,
+      "z": -0.0754
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 17,
+    "label": "School · Sweat · Shoujo",
+    "top_tags": [
+      "School",
+      "Sweat",
+      "Shoujo",
+      "American Football",
+      "Full Color",
+      "Female Protagonist"
+    ],
+    "count": 435,
+    "centroid": {
+      "x": -0.8359,
+      "y": 2.5797,
+      "z": 3.4914
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 18,
+    "label": "Isekai · Male Protagonist · Full Color",
+    "top_tags": [
+      "Isekai",
+      "Male Protagonist",
+      "Full Color",
+      "Long Strip",
+      "Shounen",
+      "Magic"
+    ],
+    "count": 216,
+    "centroid": {
+      "x": -0.1579,
+      "y": -0.459,
+      "z": 0.9142
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 19,
+    "label": "Kids · Proxy Battle · Primarily Child Cast",
+    "top_tags": [
+      "Kids",
+      "Proxy Battle",
+      "Primarily Child Cast",
+      "Animals",
+      "Travel",
+      "Robots"
+    ],
+    "count": 243,
+    "centroid": {
+      "x": -2.46,
+      "y": -0.4275,
+      "z": 1.8368
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 20,
+    "label": "Magic · Swordplay · Demons",
+    "top_tags": [
+      "Magic",
+      "Swordplay",
+      "Demons",
+      "Economics",
+      "Male Protagonist",
+      "Isekai"
+    ],
+    "count": 672,
+    "centroid": {
+      "x": -0.17,
+      "y": -0.4113,
+      "z": 0.2781
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 21,
+    "label": "Table Tennis · Rugby · Shounen",
+    "top_tags": [
+      "Table Tennis",
+      "Rugby",
+      "Shounen",
+      "School",
+      "School Club",
+      "Seinen"
+    ],
+    "count": 36,
+    "centroid": {
+      "x": 0.2464,
+      "y": 0.7821,
+      "z": -0.9835
+    },
+    "color": "#22c55e"
+  },
+  {
+    "id": 22,
+    "label": "School · Heterosexual · Shogi",
+    "top_tags": [
+      "School",
+      "Heterosexual",
+      "Shogi",
+      "Shounen",
+      "Male Protagonist",
+      "Cycling"
+    ],
+    "count": 472,
+    "centroid": {
+      "x": -0.4304,
+      "y": 0.8699,
+      "z": 0.9964
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 23,
+    "label": "Heterosexual · Full Color · Royal Affairs",
+    "top_tags": [
+      "Heterosexual",
+      "Full Color",
+      "Royal Affairs",
+      "Veterinarian",
+      "Female Protagonist",
+      "Male Protagonist"
+    ],
+    "count": 225,
+    "centroid": {
+      "x": 1.1258,
+      "y": 0.1671,
+      "z": 4.7631
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 24,
+    "label": "Boys' Love · Full Color · Fencing",
+    "top_tags": [
+      "Boys' Love",
+      "Full Color",
+      "Fencing",
+      "College",
+      "Primarily Male Cast",
+      "Long Strip"
+    ],
+    "count": 226,
+    "centroid": {
+      "x": -2.2598,
+      "y": -1.8956,
+      "z": -3.8118
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 25,
+    "label": "Seinen · School · Nudity",
+    "top_tags": [
+      "Seinen",
+      "School",
+      "Nudity",
+      "Boarding School",
+      "Heterosexual",
+      "War"
+    ],
+    "count": 219,
+    "centroid": {
+      "x": -4.0296,
+      "y": -2.6021,
+      "z": 0.1119
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 26,
+    "label": "Anthology · Heterosexual · Female Protagonist",
+    "top_tags": [
+      "Anthology",
+      "Heterosexual",
+      "Female Protagonist",
+      "Magic",
+      "Full Color",
+      "Urban"
+    ],
+    "count": 371,
+    "centroid": {
+      "x": -3.9034,
+      "y": -1.999,
+      "z": -2.2537
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 27,
+    "label": "Historical · Shoujo · Female Protagonist",
+    "top_tags": [
+      "Historical",
+      "Shoujo",
+      "Female Protagonist",
+      "Gender Bending",
+      "Primarily Male Cast",
+      "Royal Affairs"
+    ],
+    "count": 144,
+    "centroid": {
+      "x": -1.7541,
+      "y": -1.4466,
+      "z": 0.1083
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 28,
+    "label": "Boys' Love · School · Go",
+    "top_tags": [
+      "Boys' Love",
+      "School",
+      "Go",
+      "Aviation",
+      "Male Protagonist",
+      "Primarily Male Cast"
+    ],
+    "count": 241,
+    "centroid": {
+      "x": -2.7243,
+      "y": 2.687,
+      "z": -3.79
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 29,
+    "label": "Coming of Age · School · Bullying",
+    "top_tags": [
+      "Coming of Age",
+      "School",
+      "Bullying",
+      "Primarily Teen Cast",
+      "Kuudere",
+      "Rehabilitation"
+    ],
+    "count": 742,
+    "centroid": {
+      "x": -0.348,
+      "y": 0.1222,
+      "z": -0.0645
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 30,
+    "label": "Shounen · School · Sweat",
+    "top_tags": [
+      "Shounen",
+      "School",
+      "Sweat",
+      "Metal Music",
+      "Bondage",
+      "Youkai"
+    ],
+    "count": 275,
+    "centroid": {
+      "x": -4.7424,
+      "y": 0.228,
+      "z": -1.5957
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 31,
+    "label": "Foreign · Historical · Amnesia",
+    "top_tags": [
+      "Foreign",
+      "Historical",
+      "Amnesia",
+      "Josei",
+      "Shoujo",
+      "Female Protagonist"
+    ],
+    "count": 461,
+    "centroid": {
+      "x": -0.5761,
+      "y": -0.2674,
+      "z": 0.2061
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 32,
+    "label": "Death Game · Virtual World · Gambling",
+    "top_tags": [
+      "Death Game",
+      "Virtual World",
+      "Gambling",
+      "Mahjong",
+      "Battle Royale",
+      "Survival"
+    ],
+    "count": 488,
+    "centroid": {
+      "x": 0.2705,
+      "y": -0.5494,
+      "z": 0.0272
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 33,
+    "label": "Full Color · Male Protagonist · Long Strip",
+    "top_tags": [
+      "Full Color",
+      "Male Protagonist",
+      "Long Strip",
+      "Anti-Hero",
+      "Skateboarding",
+      "Time Manipulation"
+    ],
+    "count": 180,
+    "centroid": {
+      "x": -3.6178,
+      "y": -2.5288,
+      "z": 1.9394
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 34,
+    "label": "Historical · Female Protagonist · Magic",
+    "top_tags": [
+      "Historical",
+      "Female Protagonist",
+      "Magic",
+      "War",
+      "Go",
+      "Shounen"
+    ],
+    "count": 213,
+    "centroid": {
+      "x": -0.5963,
+      "y": -1.2357,
+      "z": 1.1017
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 35,
+    "label": "Rural · Philosophy · Denpa",
+    "top_tags": [
+      "Rural",
+      "Philosophy",
+      "Denpa",
+      "Primarily Child Cast",
+      "Travel",
+      "Seinen"
+    ],
+    "count": 891,
+    "centroid": {
+      "x": -0.3839,
+      "y": -0.1604,
+      "z": -0.1403
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 36,
+    "label": "Long Strip · Heterosexual · Full Color",
+    "top_tags": [
+      "Long Strip",
+      "Heterosexual",
+      "Full Color",
+      "Female Protagonist",
+      "Delinquents",
+      "Tanned Skin"
+    ],
+    "count": 130,
+    "centroid": {
+      "x": -1.2451,
+      "y": -3.669,
+      "z": 0.2443
+    },
+    "color": "#3b82f6"
+  },
+  {
+    "id": 37,
+    "label": "Heterosexual · Josei · School",
+    "top_tags": [
+      "Heterosexual",
+      "Josei",
+      "School",
+      "Male Protagonist",
+      "Full Color",
+      "Primarily Teen Cast"
+    ],
+    "count": 146,
+    "centroid": {
+      "x": 0.2339,
+      "y": 0.3982,
+      "z": 3.2621
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 38,
+    "label": "Long Strip · Heterosexual · Full Color",
+    "top_tags": [
+      "Long Strip",
+      "Heterosexual",
+      "Full Color",
+      "Anthology",
+      "Male Protagonist",
+      "Makeup"
+    ],
+    "count": 253,
+    "centroid": {
+      "x": -0.955,
+      "y": -2.7506,
+      "z": 3.56
+    },
+    "color": "#3b82f6"
+  },
+  {
+    "id": 39,
+    "label": "Heterosexual · Shoujo · Male Protagonist",
+    "top_tags": [
+      "Heterosexual",
+      "Shoujo",
+      "Male Protagonist",
+      "Female Protagonist",
+      "Anthology",
+      "Arranged Marriage"
+    ],
+    "count": 94,
+    "centroid": {
+      "x": 1.2779,
+      "y": -0.2708,
+      "z": -2.8153
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 40,
+    "label": "Video Games · Virtual World · Boxing",
+    "top_tags": [
+      "Video Games",
+      "Virtual World",
+      "Boxing",
+      "Male Protagonist",
+      "E-Sports",
+      "Software Development"
+    ],
+    "count": 403,
+    "centroid": {
+      "x": 0.3494,
+      "y": -0.1962,
+      "z": 0.0824
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 41,
+    "label": "Boys' Love · Full Color · Male Protagonist",
+    "top_tags": [
+      "Boys' Love",
+      "Full Color",
+      "Male Protagonist",
+      "School",
+      "Anthology",
+      "Yuri"
+    ],
+    "count": 323,
+    "centroid": {
+      "x": -0.8841,
+      "y": 0.294,
+      "z": -0.5163
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 42,
+    "label": "Female Protagonist · Full Color · Seinen",
+    "top_tags": [
+      "Female Protagonist",
+      "Full Color",
+      "Seinen",
+      "Heterosexual",
+      "Shounen",
+      "Body Horror"
+    ],
+    "count": 202,
+    "centroid": {
+      "x": -3.7671,
+      "y": -1.1285,
+      "z": 1.1694
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 43,
+    "label": "Josei · Crime · Police",
+    "top_tags": [
+      "Josei",
+      "Crime",
+      "Police",
+      "Mixed Media",
+      "Gore",
+      "Shoujo"
+    ],
+    "count": 736,
+    "centroid": {
+      "x": -2.009,
+      "y": 0.8021,
+      "z": 1.488
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 44,
+    "label": "Cars · Watersports · Seinen",
+    "top_tags": [
+      "Cars",
+      "Watersports",
+      "Seinen",
+      "Shounen",
+      "Male Protagonist",
+      "Female Protagonist"
+    ],
+    "count": 113,
+    "centroid": {
+      "x": -1.4557,
+      "y": 0.1706,
+      "z": 0.0706
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 45,
+    "label": "Boys' Love · School · Shoujo",
+    "top_tags": [
+      "Boys' Love",
+      "School",
+      "Shoujo",
+      "Male Protagonist",
+      "Full Color",
+      "Anthology"
+    ],
+    "count": 242,
+    "centroid": {
+      "x": -0.9498,
+      "y": 0.7485,
+      "z": -1.8701
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 46,
+    "label": "Yuri · School · Seinen",
+    "top_tags": [
+      "Yuri",
+      "School",
+      "Seinen",
+      "Full Color",
+      "Shounen",
+      "Female Protagonist"
+    ],
+    "count": 180,
+    "centroid": {
+      "x": -0.6208,
+      "y": 0.5358,
+      "z": -0.7551
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 47,
+    "label": "Long Strip · Full Color · Female Protagonist",
+    "top_tags": [
+      "Long Strip",
+      "Full Color",
+      "Female Protagonist",
+      "School",
+      "Age Gap",
+      "Dragons"
+    ],
+    "count": 135,
+    "centroid": {
+      "x": -1.7995,
+      "y": -3.8344,
+      "z": 1.7766
+    },
+    "color": "#3b82f6"
+  },
+  {
+    "id": 48,
+    "label": "Detective · Police · Crime",
+    "top_tags": [
+      "Detective",
+      "Police",
+      "Crime",
+      "Seinen",
+      "Male Protagonist",
+      "Primarily Adult Cast"
+    ],
+    "count": 614,
+    "centroid": {
+      "x": -0.6428,
+      "y": -0.5826,
+      "z": 0.0381
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 49,
+    "label": "Yandere · Incest · Twins",
+    "top_tags": [
+      "Yandere",
+      "Incest",
+      "Twins",
+      "Nudity",
+      "Inseki",
+      "Primarily Female Cast"
+    ],
+    "count": 827,
+    "centroid": {
+      "x": -0.3121,
+      "y": 0.2255,
+      "z": 0.2626
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 50,
+    "label": "Anthology · Boys' Love · Male Protagonist",
+    "top_tags": [
+      "Anthology",
+      "Boys' Love",
+      "Male Protagonist",
+      "Shounen",
+      "School",
+      "Twins"
+    ],
+    "count": 218,
+    "centroid": {
+      "x": -1.0761,
+      "y": 1.0222,
+      "z": -0.6583
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 51,
+    "label": "Female Harem · School · Seinen",
+    "top_tags": [
+      "Female Harem",
+      "School",
+      "Seinen",
+      "Male Protagonist",
+      "Yuri",
+      "Primarily Female Cast"
+    ],
+    "count": 329,
+    "centroid": {
+      "x": 0.6502,
+      "y": -0.1511,
+      "z": 0.5409
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 52,
+    "label": "Football · Shounen · Primarily Male Cast",
+    "top_tags": [
+      "Football",
+      "Shounen",
+      "Primarily Male Cast",
+      "School Club",
+      "School",
+      "Male Protagonist"
+    ],
+    "count": 133,
+    "centroid": {
+      "x": 0.7177,
+      "y": -0.0854,
+      "z": -1.0255
+    },
+    "color": "#22c55e"
+  },
+  {
+    "id": 53,
+    "label": "Anthology · Shoujo · Gore",
+    "top_tags": [
+      "Anthology",
+      "Shoujo",
+      "Gore",
+      "Female Protagonist",
+      "Ghost",
+      "Steampunk"
+    ],
+    "count": 209,
+    "centroid": {
+      "x": -2.0998,
+      "y": -0.0169,
+      "z": -2.4072
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 54,
+    "label": "Time Manipulation · Age Regression · Revenge",
+    "top_tags": [
+      "Time Manipulation",
+      "Age Regression",
+      "Revenge",
+      "Politics",
+      "Full Color",
+      "Royal Affairs"
+    ],
+    "count": 904,
+    "centroid": {
+      "x": -0.3888,
+      "y": -0.2719,
+      "z": 0.4007
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 55,
+    "label": "Anthology · Seinen · Primarily Adult Cast",
+    "top_tags": [
+      "Anthology",
+      "Seinen",
+      "Primarily Adult Cast",
+      "Nudity",
+      "School",
+      "Female Protagonist"
+    ],
+    "count": 144,
+    "centroid": {
+      "x": -1.7491,
+      "y": -1.7389,
+      "z": -0.9377
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 56,
+    "label": "Yuri · LGBTQ+ Themes · Primarily Female Cast",
+    "top_tags": [
+      "Yuri",
+      "LGBTQ+ Themes",
+      "Primarily Female Cast",
+      "Female Protagonist",
+      "College",
+      "Primarily Teen Cast"
+    ],
+    "count": 1276,
+    "centroid": {
+      "x": -0.4588,
+      "y": 0.341,
+      "z": -0.2237
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 57,
+    "label": "Band · School Club · Otaku Culture",
+    "top_tags": [
+      "Band",
+      "School Club",
+      "Otaku Culture",
+      "School",
+      "Primarily Teen Cast",
+      "Female Protagonist"
+    ],
+    "count": 708,
+    "centroid": {
+      "x": -0.1434,
+      "y": 0.2587,
+      "z": -0.2926
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 58,
+    "label": "Vampire · Werewolf · Shoujo",
+    "top_tags": [
+      "Vampire",
+      "Werewolf",
+      "Shoujo",
+      "Boys' Love",
+      "Urban Fantasy",
+      "Female Protagonist"
+    ],
+    "count": 608,
+    "centroid": {
+      "x": -1.053,
+      "y": -0.5115,
+      "z": 0.2555
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 59,
+    "label": "Cultivation · Wuxia · Martial Arts",
+    "top_tags": [
+      "Cultivation",
+      "Wuxia",
+      "Martial Arts",
+      "Full Color",
+      "Male Protagonist",
+      "Reincarnation"
+    ],
+    "count": 534,
+    "centroid": {
+      "x": 0.2839,
+      "y": -0.7636,
+      "z": 0.5149
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 60,
+    "label": "Shoujo · Anthology · Heterosexual",
+    "top_tags": [
+      "Shoujo",
+      "Anthology",
+      "Heterosexual",
+      "School",
+      "Historical",
+      "Female Protagonist"
+    ],
+    "count": 127,
+    "centroid": {
+      "x": -2.0542,
+      "y": -0.0152,
+      "z": -0.6052
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 61,
+    "label": "Teens' Love · Josei · Seinen",
+    "top_tags": [
+      "Teens' Love",
+      "Josei",
+      "Seinen",
+      "Heterosexual",
+      "Female Protagonist",
+      "Shoujo"
+    ],
+    "count": 280,
+    "centroid": {
+      "x": -0.9298,
+      "y": 0.7196,
+      "z": 0.4957
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 62,
+    "label": "Historical · Seinen · Female Protagonist",
+    "top_tags": [
+      "Historical",
+      "Seinen",
+      "Female Protagonist",
+      "Male Protagonist",
+      "Amputation",
+      "Foreign"
+    ],
+    "count": 169,
+    "centroid": {
+      "x": -0.6039,
+      "y": -2.1744,
+      "z": 0.9551
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 63,
+    "label": "Surreal Comedy · Angels · Slapstick",
+    "top_tags": [
+      "Surreal Comedy",
+      "Angels",
+      "Slapstick",
+      "Meta",
+      "Parody",
+      "Satire"
+    ],
+    "count": 663,
+    "centroid": {
+      "x": -0.1275,
+      "y": -0.1711,
+      "z": -0.1645
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 64,
+    "label": "Animals · Kemonomimi · Anthropomorphism",
+    "top_tags": [
+      "Animals",
+      "Kemonomimi",
+      "Anthropomorphism",
+      "Shapeshifting",
+      "Nekomimi",
+      "Primarily Animal Cast"
+    ],
+    "count": 961,
+    "centroid": {
+      "x": -0.6506,
+      "y": -0.2442,
+      "z": -0.3005
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 65,
+    "label": "Omegaverse · Wrestling · Boys' Love",
+    "top_tags": [
+      "Omegaverse",
+      "Wrestling",
+      "Boys' Love",
+      "Male Protagonist",
+      "Primarily Male Cast",
+      "Sumo"
+    ],
+    "count": 200,
+    "centroid": {
+      "x": 0.157,
+      "y": -0.3741,
+      "z": -1.3114
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 66,
+    "label": "Shoujo · School · Female Protagonist",
+    "top_tags": [
+      "Shoujo",
+      "School",
+      "Female Protagonist",
+      "Heterosexual",
+      "Badminton",
+      "Male Protagonist"
+    ],
+    "count": 357,
+    "centroid": {
+      "x": -0.2746,
+      "y": 0.7723,
+      "z": 0.3293
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 67,
+    "label": "Female Harem · Succubus · Magic",
+    "top_tags": [
+      "Female Harem",
+      "Succubus",
+      "Magic",
+      "Shounen",
+      "Male Protagonist",
+      "School"
+    ],
+    "count": 408,
+    "centroid": {
+      "x": 0.2078,
+      "y": -0.1547,
+      "z": 0.5059
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 68,
+    "label": "Office Lady · Office · Primarily Adult Cast",
+    "top_tags": [
+      "Office Lady",
+      "Office",
+      "Primarily Adult Cast",
+      "Work",
+      "Age Gap",
+      "Female Protagonist"
+    ],
+    "count": 674,
+    "centroid": {
+      "x": -0.7841,
+      "y": 0.4132,
+      "z": -0.0141
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 69,
+    "label": "Seinen · Male Protagonist · School",
+    "top_tags": [
+      "Seinen",
+      "Male Protagonist",
+      "School",
+      "Full Color",
+      "Heterosexual",
+      "Circus"
+    ],
+    "count": 121,
+    "centroid": {
+      "x": -0.6704,
+      "y": 1.1862,
+      "z": 1.8894
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 70,
+    "label": "Classic Literature · Historical · Foreign",
+    "top_tags": [
+      "Classic Literature",
+      "Historical",
+      "Foreign",
+      "Seinen",
+      "Philosophy",
+      "Shoujo"
+    ],
+    "count": 186,
+    "centroid": {
+      "x": -0.7347,
+      "y": -0.9021,
+      "z": -0.4427
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 71,
+    "label": "Seinen · Female Protagonist · Cunnilingus",
+    "top_tags": [
+      "Seinen",
+      "Female Protagonist",
+      "Cunnilingus",
+      "Nudity",
+      "Guns",
+      "Animals"
+    ],
+    "count": 75,
+    "centroid": {
+      "x": -1.4686,
+      "y": 1.9456,
+      "z": -0.1612
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 72,
+    "label": "Shounen · Male Protagonist · Anthology",
+    "top_tags": [
+      "Shounen",
+      "Male Protagonist",
+      "Anthology",
+      "Magic",
+      "Demons",
+      "Heterosexual"
+    ],
+    "count": 81,
+    "centroid": {
+      "x": -2.2602,
+      "y": 0.8999,
+      "z": 0.5821
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 73,
+    "label": "Isekai · Magic · Female Harem",
+    "top_tags": [
+      "Isekai",
+      "Magic",
+      "Female Harem",
+      "Dungeon",
+      "Elf",
+      "Male Protagonist"
+    ],
+    "count": 950,
+    "centroid": {
+      "x": -0.0104,
+      "y": -0.2929,
+      "z": 0.2854
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 74,
+    "label": "Heterosexual · Full Color · Female Protagonist",
+    "top_tags": [
+      "Heterosexual",
+      "Full Color",
+      "Female Protagonist",
+      "Magic",
+      "Long Strip",
+      "Rape"
+    ],
+    "count": 115,
+    "centroid": {
+      "x": -0.1263,
+      "y": -0.4539,
+      "z": 3.0312
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 75,
+    "label": "Idol · Acting · Boys' Love",
+    "top_tags": [
+      "Idol",
+      "Acting",
+      "Boys' Love",
+      "Female Protagonist",
+      "Shoujo",
+      "Male Protagonist"
+    ],
+    "count": 734,
+    "centroid": {
+      "x": -0.0515,
+      "y": 0.4243,
+      "z": -0.3254
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 76,
+    "label": "Shoujo · Age Gap · Love Triangle",
+    "top_tags": [
+      "Shoujo",
+      "Age Gap",
+      "Love Triangle",
+      "Heterosexual",
+      "Female Protagonist",
+      "School"
+    ],
+    "count": 682,
+    "centroid": {
+      "x": -0.4624,
+      "y": 0.4346,
+      "z": 0.0897
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 77,
+    "label": "Samurai · Historical · Ninja",
+    "top_tags": [
+      "Samurai",
+      "Historical",
+      "Ninja",
+      "Swordplay",
+      "Biographical",
+      "Seinen"
+    ],
+    "count": 534,
+    "centroid": {
+      "x": -0.1254,
+      "y": -0.7442,
+      "z": 0.3101
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 78,
+    "label": "Historical · Shounen · Male Protagonist",
+    "top_tags": [
+      "Historical",
+      "Shounen",
+      "Male Protagonist",
+      "Time Manipulation",
+      "Wuxia",
+      "Ancient China"
+    ],
+    "count": 81,
+    "centroid": {
+      "x": -0.87,
+      "y": -2.0937,
+      "z": -0.0746
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 79,
+    "label": "Dancing · Ballet · Shoujo",
+    "top_tags": [
+      "Dancing",
+      "Ballet",
+      "Shoujo",
+      "Female Protagonist",
+      "Foreign",
+      "School"
+    ],
+    "count": 124,
+    "centroid": {
+      "x": -0.1299,
+      "y": 0.4992,
+      "z": -0.6801
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 80,
+    "label": "Crime · Assassins · Yakuza",
+    "top_tags": [
+      "Crime",
+      "Assassins",
+      "Yakuza",
+      "Guns",
+      "Seinen",
+      "Mafia"
+    ],
+    "count": 987,
+    "centroid": {
+      "x": -0.4983,
+      "y": -0.4209,
+      "z": 0.1079
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 81,
+    "label": "Magic · Male Protagonist · Boys' Love",
+    "top_tags": [
+      "Magic",
+      "Male Protagonist",
+      "Boys' Love",
+      "Primarily Adult Cast",
+      "Shounen",
+      "Yuri"
+    ],
+    "count": 155,
+    "centroid": {
+      "x": -2.4551,
+      "y": -1.2358,
+      "z": 0.0376
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 82,
+    "label": "Long Strip · Anthology · Shoujo",
+    "top_tags": [
+      "Long Strip",
+      "Anthology",
+      "Shoujo",
+      "Boys' Love",
+      "Full Color",
+      "Yuri"
+    ],
+    "count": 96,
+    "centroid": {
+      "x": -1.2422,
+      "y": 0.0886,
+      "z": -1.0719
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 83,
+    "label": "Parody · Mermaid · Crossover",
+    "top_tags": [
+      "Parody",
+      "Mermaid",
+      "Crossover",
+      "Shounen",
+      "Advertisement",
+      "4-koma"
+    ],
+    "count": 528,
+    "centroid": {
+      "x": 0.0562,
+      "y": -0.2079,
+      "z": -0.3809
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 84,
+    "label": "Ice Skating · Shoujo · Female Protagonist",
+    "top_tags": [
+      "Ice Skating",
+      "Shoujo",
+      "Female Protagonist",
+      "Shounen",
+      "Male Protagonist",
+      "School"
+    ],
+    "count": 52,
+    "centroid": {
+      "x": -0.3622,
+      "y": 2.0749,
+      "z": 0.028
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 85,
+    "label": "Gender Bending · Crossdressing · Body Swapping",
+    "top_tags": [
+      "Gender Bending",
+      "Crossdressing",
+      "Body Swapping",
+      "VTuber",
+      "School",
+      "Femboy"
+    ],
+    "count": 845,
+    "centroid": {
+      "x": 0.3157,
+      "y": 0.3117,
+      "z": -0.0828
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 86,
+    "label": "Boys' Love · School · Male Protagonist",
+    "top_tags": [
+      "Boys' Love",
+      "School",
+      "Male Protagonist",
+      "Full Color",
+      "Tsundere",
+      "Basketball"
+    ],
+    "count": 79,
+    "centroid": {
+      "x": -0.1629,
+      "y": 1.3488,
+      "z": -1.7017
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 87,
+    "label": "Food · Restaurant · Seinen",
+    "top_tags": [
+      "Food",
+      "Restaurant",
+      "Seinen",
+      "Primarily Adult Cast",
+      "Work",
+      "Female Protagonist"
+    ],
+    "count": 628,
+    "centroid": {
+      "x": -0.8546,
+      "y": -0.0295,
+      "z": -0.1404
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 88,
+    "label": "Baseball · Tennis · School Club",
+    "top_tags": [
+      "Baseball",
+      "Tennis",
+      "School Club",
+      "Shounen",
+      "School",
+      "Primarily Male Cast"
+    ],
+    "count": 273,
+    "centroid": {
+      "x": -0.2459,
+      "y": 0.8708,
+      "z": -0.8232
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 89,
+    "label": "Isekai · Male Protagonist · Magic",
+    "top_tags": [
+      "Isekai",
+      "Male Protagonist",
+      "Magic",
+      "Reincarnation",
+      "Slavery",
+      "Elf"
+    ],
+    "count": 140,
+    "centroid": {
+      "x": -1.0657,
+      "y": -1.4685,
+      "z": 1.2884
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 90,
+    "label": "Card Battle · Shounen · Kids",
+    "top_tags": [
+      "Card Battle",
+      "Shounen",
+      "Kids",
+      "Male Protagonist",
+      "Full Color",
+      "Urban Fantasy"
+    ],
+    "count": 55,
+    "centroid": {
+      "x": -0.9745,
+      "y": -0.0703,
+      "z": 1.3534
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 91,
+    "label": "Delinquents · Large Breasts · Gangs",
+    "top_tags": [
+      "Delinquents",
+      "Large Breasts",
+      "Gangs",
+      "School",
+      "Shounen",
+      "Male Protagonist"
+    ],
+    "count": 709,
+    "centroid": {
+      "x": -0.0737,
+      "y": 0.1004,
+      "z": 0.0298
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 92,
+    "label": "No Dialogue · Trains · Seinen",
+    "top_tags": [
+      "No Dialogue",
+      "Trains",
+      "Seinen",
+      "Female Protagonist",
+      "Full Color",
+      "Episodic"
+    ],
+    "count": 128,
+    "centroid": {
+      "x": -0.2643,
+      "y": -0.0765,
+      "z": -0.7629
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 93,
+    "label": "Family Life · Episodic · Parenthood",
+    "top_tags": [
+      "Family Life",
+      "Episodic",
+      "Parenthood",
+      "Adoption",
+      "Found Family",
+      "Male Protagonist"
+    ],
+    "count": 716,
+    "centroid": {
+      "x": -0.5586,
+      "y": -0.0284,
+      "z": -0.0043
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 94,
+    "label": "Gods · Mythology · Gore",
+    "top_tags": [
+      "Gods",
+      "Mythology",
+      "Gore",
+      "Body Horror",
+      "Urban Fantasy",
+      "Survival"
+    ],
+    "count": 1105,
+    "centroid": {
+      "x": -0.2766,
+      "y": -0.4136,
+      "z": -0.0044
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 95,
+    "label": "Villainess · Royal Affairs · Isekai",
+    "top_tags": [
+      "Villainess",
+      "Royal Affairs",
+      "Isekai",
+      "Female Protagonist",
+      "Reincarnation",
+      "Ojou-sama"
+    ],
+    "count": 907,
+    "centroid": {
+      "x": -0.3322,
+      "y": -0.0933,
+      "z": 0.4716
+    },
+    "color": "#3b82f6"
+  },
+  {
+    "id": 96,
+    "label": "Isekai · Historical · Full Color",
+    "top_tags": [
+      "Isekai",
+      "Historical",
+      "Full Color",
+      "Female Protagonist",
+      "Heterosexual",
+      "Boys' Love"
+    ],
+    "count": 326,
+    "centroid": {
+      "x": -0.4883,
+      "y": -0.416,
+      "z": 0.851
+    },
+    "color": "#3b82f6"
+  },
+  {
+    "id": 97,
+    "label": "Golf · Seinen · Shounen",
+    "top_tags": [
+      "Golf",
+      "Seinen",
+      "Shounen",
+      "Male Protagonist",
+      "Female Protagonist",
+      "Work"
+    ],
+    "count": 37,
+    "centroid": {
+      "x": 0.62,
+      "y": 0.5989,
+      "z": 0.4963
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 98,
+    "label": "Super Power · War · Military",
+    "top_tags": [
+      "Super Power",
+      "War",
+      "Military",
+      "Historical",
+      "Shounen",
+      "Seinen"
+    ],
+    "count": 759,
+    "centroid": {
+      "x": -0.321,
+      "y": -0.6848,
+      "z": 0.1289
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 99,
+    "label": "Marriage · Shoujo · Tragedy",
+    "top_tags": [
+      "Marriage",
+      "Shoujo",
+      "Tragedy",
+      "Female Protagonist",
+      "Heterosexual",
+      "Primarily Adult Cast"
+    ],
+    "count": 404,
+    "centroid": {
+      "x": -0.6784,
+      "y": 0.0148,
+      "z": 0.2854
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 100,
+    "label": "Space · Military · Real Robot",
+    "top_tags": [
+      "Space",
+      "Military",
+      "Real Robot",
+      "Space Opera",
+      "Super Robot",
+      "Pirates"
+    ],
+    "count": 821,
+    "centroid": {
+      "x": -0.1859,
+      "y": -0.8925,
+      "z": -0.1491
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 101,
+    "label": "Primarily Teen Cast · Heterosexual · School",
+    "top_tags": [
+      "Primarily Teen Cast",
+      "Heterosexual",
+      "School",
+      "Tsundere",
+      "Shoujo",
+      "Female Protagonist"
+    ],
+    "count": 802,
+    "centroid": {
+      "x": -0.2889,
+      "y": 0.34,
+      "z": 0.0062
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 102,
+    "label": "Drawing · Writing · Photography",
+    "top_tags": [
+      "Drawing",
+      "Writing",
+      "Photography",
+      "Swimming",
+      "Male Protagonist",
+      "Female Protagonist"
+    ],
+    "count": 759,
+    "centroid": {
+      "x": -0.3794,
+      "y": 0.1892,
+      "z": -0.4074
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 103,
+    "label": "Witch · Magic · Fairy Tale",
+    "top_tags": [
+      "Witch",
+      "Magic",
+      "Fairy Tale",
+      "Female Protagonist",
+      "Fairy",
+      "Henshin"
+    ],
+    "count": 591,
+    "centroid": {
+      "x": 0.0501,
+      "y": -0.3032,
+      "z": -0.0841
+    },
+    "color": "#3b82f6"
+  },
+  {
+    "id": 104,
+    "label": "Shounen · School · Male Protagonist",
+    "top_tags": [
+      "Shounen",
+      "School",
+      "Male Protagonist",
+      "Food",
+      "Slapstick",
+      "Primarily Teen Cast"
+    ],
+    "count": 124,
+    "centroid": {
+      "x": -4.5194,
+      "y": 1.2653,
+      "z": 0.5414
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 105,
+    "label": "Shoujo · Female Protagonist · Heterosexual",
+    "top_tags": [
+      "Shoujo",
+      "Female Protagonist",
+      "Heterosexual",
+      "Male Harem",
+      "Drawing",
+      "Kemonomimi"
+    ],
+    "count": 89,
+    "centroid": {
+      "x": -1.5057,
+      "y": -0.3869,
+      "z": 0.7423
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 106,
+    "label": "Reincarnation · Isekai · Magic",
+    "top_tags": [
+      "Reincarnation",
+      "Isekai",
+      "Magic",
+      "Female Protagonist",
+      "Full Color",
+      "Male Protagonist"
+    ],
+    "count": 615,
+    "centroid": {
+      "x": -0.1256,
+      "y": -0.24,
+      "z": 0.5449
+    },
+    "color": "#3b82f6"
+  },
+  {
+    "id": 107,
+    "label": "Youkai · Ghost · Afterlife",
+    "top_tags": [
+      "Youkai",
+      "Ghost",
+      "Afterlife",
+      "Exorcism",
+      "Urban Fantasy",
+      "Male Protagonist"
+    ],
+    "count": 1005,
+    "centroid": {
+      "x": -0.3549,
+      "y": -0.3657,
+      "z": -0.3128
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 108,
+    "label": "Primarily Adult Cast · Work · Heterosexual",
+    "top_tags": [
+      "Primarily Adult Cast",
+      "Work",
+      "Heterosexual",
+      "Josei",
+      "Urban",
+      "Female Protagonist"
+    ],
+    "count": 859,
+    "centroid": {
+      "x": -0.6997,
+      "y": 0.2821,
+      "z": 0.1711
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 109,
+    "label": "Demons · Shounen · Shoujo",
+    "top_tags": [
+      "Demons",
+      "Shounen",
+      "Shoujo",
+      "Seinen",
+      "Male Protagonist",
+      "Boys' Love"
+    ],
+    "count": 435,
+    "centroid": {
+      "x": -0.4321,
+      "y": -0.5872,
+      "z": 0.4442
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 110,
+    "label": "Martial Arts · Male Protagonist · Full Color",
+    "top_tags": [
+      "Martial Arts",
+      "Male Protagonist",
+      "Full Color",
+      "Shounen",
+      "Seinen",
+      "Swordplay"
+    ],
+    "count": 378,
+    "centroid": {
+      "x": 0.3023,
+      "y": -0.5793,
+      "z": 0.3411
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 111,
+    "label": "Magic · Shounen · Female Protagonist",
+    "top_tags": [
+      "Magic",
+      "Shounen",
+      "Female Protagonist",
+      "Anthology",
+      "Crime",
+      "Nudity"
+    ],
+    "count": 75,
+    "centroid": {
+      "x": -1.7754,
+      "y": 0.8724,
+      "z": 0.3283
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 112,
+    "label": "Monster Girl · Dragons · Maids",
+    "top_tags": [
+      "Monster Girl",
+      "Dragons",
+      "Maids",
+      "Female Protagonist",
+      "Magic",
+      "Male Protagonist"
+    ],
+    "count": 692,
+    "centroid": {
+      "x": -0.1991,
+      "y": -0.1823,
+      "z": 0.1777
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 113,
+    "label": "Male Harem · Butler · Shoujo",
+    "top_tags": [
+      "Male Harem",
+      "Butler",
+      "Shoujo",
+      "Magic",
+      "Female Protagonist",
+      "School"
+    ],
+    "count": 498,
+    "centroid": {
+      "x": -0.2019,
+      "y": 0.1533,
+      "z": 0.526
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 114,
+    "label": "Historical · Boys' Love · Anthology",
+    "top_tags": [
+      "Historical",
+      "Boys' Love",
+      "Anthology",
+      "Male Protagonist",
+      "Full Color",
+      "Shoujo"
+    ],
+    "count": 128,
+    "centroid": {
+      "x": -1.3444,
+      "y": -0.683,
+      "z": -0.0523
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 115,
+    "label": "Medicine · Ero Guro · Seinen",
+    "top_tags": [
+      "Medicine",
+      "Ero Guro",
+      "Seinen",
+      "Work",
+      "Primarily Adult Cast",
+      "Male Protagonist"
+    ],
+    "count": 301,
+    "centroid": {
+      "x": -0.7448,
+      "y": -0.5187,
+      "z": -0.1815
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 116,
+    "label": "Aliens · Tokusatsu · Superhero",
+    "top_tags": [
+      "Aliens",
+      "Tokusatsu",
+      "Superhero",
+      "Henshin",
+      "Super Power",
+      "Kaiju"
+    ],
+    "count": 538,
+    "centroid": {
+      "x": -0.0375,
+      "y": -0.6578,
+      "z": -0.2343
+    },
+    "color": "#ef4444"
+  },
+  {
+    "id": 117,
+    "label": "4-koma · Cute Girls Doing Cute Things · Primarily Female Cast",
+    "top_tags": [
+      "4-koma",
+      "Cute Girls Doing Cute Things",
+      "Primarily Female Cast",
+      "Chibi",
+      "School",
+      "Female Protagonist"
+    ],
+    "count": 752,
+    "centroid": {
+      "x": -0.0953,
+      "y": 0.0296,
+      "z": -0.3987
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 118,
+    "label": "Autobiographical · Educational · Non-fiction",
+    "top_tags": [
+      "Autobiographical",
+      "Educational",
+      "Non-fiction",
+      "Fishing",
+      "Drawing",
+      "Female Protagonist"
+    ],
+    "count": 414,
+    "centroid": {
+      "x": -0.4364,
+      "y": -0.0564,
+      "z": -0.4619
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 119,
+    "label": "Shoujo · Heterosexual · School",
+    "top_tags": [
+      "Shoujo",
+      "Heterosexual",
+      "School",
+      "Male Protagonist",
+      "Female Protagonist",
+      "Seinen"
+    ],
+    "count": 64,
+    "centroid": {
+      "x": 0.5657,
+      "y": 0.4372,
+      "z": 1.0953
+    },
+    "color": "#ec4899"
+  },
+  {
+    "id": 120,
+    "label": "Josei · Historical · Female Protagonist",
+    "top_tags": [
+      "Josei",
+      "Historical",
+      "Female Protagonist",
+      "Male Protagonist",
+      "Foreign",
+      "Episodic"
+    ],
+    "count": 76,
+    "centroid": {
+      "x": -1.1137,
+      "y": -0.0177,
+      "z": 0.6947
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 121,
+    "label": "Iyashikei · Disability · Cute Boys Doing Cute Things",
+    "top_tags": [
+      "Iyashikei",
+      "Disability",
+      "Cute Boys Doing Cute Things",
+      "Primarily Adult Cast",
+      "Language Barrier",
+      "Male Protagonist"
+    ],
+    "count": 506,
+    "centroid": {
+      "x": -0.5098,
+      "y": 0.0003,
+      "z": -0.2261
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 122,
+    "label": "Teacher · Anthology · Age Gap",
+    "top_tags": [
+      "Teacher",
+      "Anthology",
+      "Age Gap",
+      "School",
+      "Yuri",
+      "Shoujo"
+    ],
+    "count": 614,
+    "centroid": {
+      "x": -0.51,
+      "y": 0.6075,
+      "z": -0.136
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 123,
+    "label": "Josei · Anthology · Primarily Adult Cast",
+    "top_tags": [
+      "Josei",
+      "Anthology",
+      "Primarily Adult Cast",
+      "Historical",
+      "Female Protagonist",
+      "Nudity"
+    ],
+    "count": 142,
+    "centroid": {
+      "x": -1.5132,
+      "y": 0.3252,
+      "z": 0.4171
+    },
+    "color": "#f59e0b"
+  },
+  {
+    "id": 124,
+    "label": "Shoujo · Male Protagonist · Medieval",
+    "top_tags": [
+      "Shoujo",
+      "Male Protagonist",
+      "Medieval",
+      "Primarily Child Cast",
+      "Body Horror"
+    ],
+    "count": 25,
+    "centroid": {
+      "x": 0.1643,
+      "y": -1.1339,
+      "z": -1.5736
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 125,
+    "label": "Heterosexual · Female Protagonist · School",
+    "top_tags": [
+      "Heterosexual",
+      "Female Protagonist",
+      "School",
+      "Full Color",
+      "Primarily Teen Cast",
+      "Veterinarian"
+    ],
+    "count": 63,
+    "centroid": {
+      "x": -0.3094,
+      "y": 0.8436,
+      "z": 1.5627
+    },
+    "color": "#eab308"
+  },
+  {
+    "id": 126,
+    "label": "Yuri · Female Protagonist · School",
+    "top_tags": [
+      "Yuri",
+      "Female Protagonist",
+      "School",
+      "Feet",
+      "Shoujo",
+      "Nudity"
+    ],
+    "count": 245,
+    "centroid": {
+      "x": -0.5562,
+      "y": 0.4445,
+      "z": -0.5683
+    },
+    "color": "#eab308"
+  }
+]

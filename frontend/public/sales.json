@@ -1,0 +1,72 @@
+[
+  {
+    "platform": "BookWalker",
+    "url": "https://bookwalker.jp/",
+    "color": "#ff6b35",
+    "sales": [
+      {
+        "title": "週替わりセール",
+        "description": "対象作品 最大50%OFF",
+        "end_date": "",
+        "url": "https://bookwalker.jp/",
+        "badge": "開催中"
+      }
+    ]
+  },
+  {
+    "platform": "Amazon Kindle",
+    "url": "https://www.amazon.co.jp/kindle-dbs/storefront?node=2275256051",
+    "color": "#ff9900",
+    "sales": [
+      {
+        "title": "Kindleセール",
+        "description": "随時開催中",
+        "end_date": "",
+        "url": "https://www.amazon.co.jp/kindle-dbs/storefront?node=2275256051",
+        "badge": ""
+      }
+    ]
+  },
+  {
+    "platform": "ebookjapan",
+    "url": "https://ebookjapan.yahoo.co.jp/",
+    "color": "#e60012",
+    "sales": [
+      {
+        "title": "0円・割引マンガ",
+        "description": "1巻無料キャンペーン多数",
+        "end_date": "",
+        "url": "https://ebookjapan.yahoo.co.jp/",
+        "badge": ""
+      }
+    ]
+  },
+  {
+    "platform": "DMMブックス",
+    "url": "https://book.dmm.com/",
+    "color": "#ff375f",
+    "sales": [
+      {
+        "title": "初回70%OFFクーポン",
+        "description": "新規登録者向けクーポン",
+        "end_date": "",
+        "url": "https://book.dmm.com/",
+        "badge": "常設"
+      }
+    ]
+  },
+  {
+    "platform": "コミックシーモア",
+    "url": "https://www.cmoa.jp/",
+    "color": "#00b4d8",
+    "sales": [
+      {
+        "title": "読み放題プラン",
+        "description": "月額対象作品が読み放題",
+        "end_date": "",
+        "url": "https://www.cmoa.jp/",
+        "badge": ""
+      }
+    ]
+  }
+]

@@ -1,0 +1,43 @@
+# ── 大容量データファイル（GitHubの100MB制限に引っかかるため除外） ──────────
+backend/output/manga_map.json
+backend/data/merged.json
+backend/data/sources/
+frontend/public/manga_map.json
+frontend/dist/manga_map.json
+
+# ── ビルド成果物 ────────────────────────────────────────────────────────────
+frontend/dist/
+
+# ── Node.js ─────────────────────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+npm-debug.log*
+
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+
+# ── 環境変数・シークレット ───────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── OS ──────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── エディタ ─────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── コミュニティDB（ユーザーデータを含むため除外） ──────────────────────────
+backend/data/community.db

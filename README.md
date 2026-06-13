@@ -112,7 +112,3 @@ npm run dev
 cd frontend
 npm run build:seo   # Vite ビルド + SSR プリレンダリング
 ```
-
-## ライセンス
-
-MIT

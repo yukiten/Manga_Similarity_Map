@@ -1,4 +1,4 @@
-# Ruima - Manga Similarity Map
+# Manga Similarity Map
 
 漫画作品をタグ・ジャンル情報から類似度を算出し、3D/2D マップ上にプロットするWebアプリケーション。
 

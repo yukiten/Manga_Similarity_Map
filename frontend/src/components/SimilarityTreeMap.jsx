@@ -1,19 +1,22 @@
 import { useRef, useEffect, useState } from 'react'
 import { getTagColor, getEffectivePop } from '../utils'
+import { getTagLabel } from '../tagTranslations'
 import { getCoverUrl } from '../lib/imageSource'
-import { requestImage, getImage } from '../lib/imageLoader'
+import { requestImage, getImage, flushQueue } from '../lib/imageLoader'
+import SearchBar from './SearchBar'
+import TagSelector from './TagSelector'
 
 // ── Physics constants ─────────────────────────────────────────────────────────
-const RING      = 190   // ideal world-space distance: parent → child
-const MIN_DIST  = 92    // minimum clearance between node centers (> card height)
+const RING      = 210   // ideal world-space distance: parent → child
+const MIN_DIST  = 148   // minimum clearance between node centers (> card height)
 const SIM_ITER  = 60    // force-simulation iterations per placement
 const EASE      = 0.062 // camera easing factor (smaller = smoother pan)
 const FADE_MS   = 380   // node fade-in duration (ms)
 
 // ── Card dimensions (world units) ────────────────────────────────────────────
-const BASE_W = 54   // card width
-const BASE_H = 76   // card height (portrait ~5:7)
-const CARD_R = 6    // corner radius
+const BASE_W = 100  // card width
+const BASE_H = 140  // card height (portrait ~5:7)
+const CARD_R = 9    // corner radius
 
 // roundRect polyfill（古いブラウザ向け）
 function rrect(ctx, x, y, w, h, r) {
@@ -32,18 +35,18 @@ function rrect(ctx, x, y, w, h, r) {
 
 // ── Force simulation: place `newPositions` around their parent,
 //    avoiding all existing nodes and each other ────────────────────────────────
-function runSim(newPositions, allNodes) {
+function runSim(newPositions, allNodes, ring = RING) {
   for (let iter = 0; iter < SIM_ITER; iter++) {
     const damp = 0.9 - 0.55 * (iter / SIM_ITER)   // damping decreases over time
 
     newPositions.forEach((pos, i) => {
       let fx = 0, fy = 0
 
-      // ① Spring: pull toward RING distance from parent (px, py)
+      // ① Spring: pull toward ring distance from parent (px, py)
       const dpx = pos.x - pos.px
       const dpy = pos.y - pos.py
       const dp  = Math.hypot(dpx, dpy) || 1
-      const err = dp - RING
+      const err = dp - ring
       fx -= (dpx / dp) * err * 0.20 * damp
       fy -= (dpy / dp) * err * 0.20 * damp
 
@@ -75,23 +78,29 @@ function runSim(newPositions, allNodes) {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose, onSelect, minPopularity = 1, onPopularityChange, isMobile = false, onOpenFavorites, favoritesCount = 0, mangaData = [], onRerootSearch, backLabel, theme = 'light', tagScores = null }) {
+const POP_STAR_COLORS = ['', '#64748b', '#94a3b8', '#fbbf24', '#f97316', '#ef4444']
+const POP_STAR_COLORS_LIGHT = ['', '#64748b', '#94a3b8', '#d97706', '#ea580c', '#dc2626']
+
+export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose, onSelect, minPopularity = 1, onPopularityChange, isMobile = false, onOpenFavorites, favoritesCount = 0, mangaData = [], onRerootSearch, backLabel, theme = 'light', tagScores = null, mapHistory = [], onMapBack, onMapHistoryNav, bottomOffset = 0, currentUser, onLogin, onLogout, onToggleTheme, communityMode = false, onToggleCommunityMode, hideViewedMode = false, onToggleHideViewed, viewedCount = 0, tagList, selectedTags, onToggleTag, onClearTags, tagMatchCount, tagTotalCount, tagFilterMode, onTagFilterModeChange }) {
 
   // All mutable data lives in refs so the RAF draw loop never needs to restart
   const canvasRef   = useRef()
   const starsRef    = useRef([])          // static star field { x, y, r, a }
   const nodesRef    = useRef(new Map())   // id → { manga, x, y, born }
   const edgesRef    = useRef(new Set())   // "idA|idB"  (sorted, deduplicated)
-  const camRef      = useRef({ x: 0, y: 0, tx: 0, ty: 0, zoom: 0.80, tzoom: 0.80 })
+  const initZoom    = isMobile ? 1.35 : 1.10
+  const camRef      = useRef({ x: 0, y: 0, tx: 0, ty: 0, zoom: initZoom, tzoom: initZoom })
   const focusRef    = useRef(rootManga.id)
   const histRef     = useRef([rootManga.id])
   const hovRef      = useRef(null)
   const ptrRef      = useRef(null)
   const pinchRef    = useRef(null)   // { dist, cx, cy } for pinch-zoom
   const rafRef      = useRef()
-  const minPopRef   = useRef(minPopularity)  // draw loop で読む用
-  const themeRef    = useRef(theme)         // draw loop で読む用
-  const tagScoresRef = useRef(tagScores)    // draw loop で読む用
+  const minPopRef    = useRef(minPopularity)  // draw loop で読む用
+  const themeRef     = useRef(theme)         // draw loop で読む用
+  const tagScoresRef = useRef(tagScores)     // draw loop で読む用
+  const lastNavRef   = useRef(0)             // 最後にノードをナビゲートした時刻（ms）
+  const NAV_COOLDOWN = 300                   // 連続クリックのクールダウン（ms）
 
   // theme が変わったら ref を同期
   useEffect(() => { themeRef.current = theme }, [theme])
@@ -141,9 +150,10 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
     })
     deadEdges.forEach(key => edges.delete(key))
 
-    // 残った可視ノード（履歴＋フォーカス）を再展開して隙間を埋める
-    const visibleIds = [...histRef.current, focusRef.current].filter(id => nodes.has(id))
-    visibleIds.forEach(id => expandNode(id, null))
+    // フォーカスノードのみ再展開（全履歴から展開すると大量ノードが出現するため）
+    if (nodes.has(focusRef.current)) {
+      expandNode(focusRef.current, null)
+    }
 
     setUi(prev => ({ ...prev, nodeCount: nodes.size }))
   }
@@ -155,8 +165,9 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
     const centerNode = nodes.get(mangaId)
     if (!centerNode) return
 
+    const ringDist  = isMobile ? 145 : RING
     const MIN_FRESH = 3
-    const BASE_COUNT = 8
+    const BASE_COUNT = isMobile ? 5 : 8
 
     // First pass: standard fetch for edges
     let neighbors = computeNeighbors(centerNode.manga, BASE_COUNT)
@@ -187,14 +198,14 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
         // Store parent coords for the spring force
         px: centerNode.x,
         py: centerNode.y,
-        // Start at 40% of RING distance so repulsion has space to push outward
-        x: centerNode.x + Math.cos(a) * RING * 0.4,
-        y: centerNode.y + Math.sin(a) * RING * 0.4,
+        // Start at 40% of ring distance so repulsion has space to push outward
+        x: centerNode.x + Math.cos(a) * ringDist * 0.4,
+        y: centerNode.y + Math.sin(a) * ringDist * 0.4,
       }
     })
 
     // Run force simulation (synchronous, fast for ≤8 new nodes)
-    runSim(newPositions, nodes)
+    runSim(newPositions, nodes, ringDist)
 
     // Commit positions
     const now = Date.now()
@@ -210,17 +221,25 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
 
   // ── Navigate: focus a node and expand it ────────────────────────────────
   function navigateTo(manga) {
+    const now = Date.now()
+    if (now - lastNavRef.current < NAV_COOLDOWN) return  // 連続クリック制限
+    lastNavRef.current = now
+
     const targetNode = nodesRef.current.get(manga.id)
     if (!targetNode) return
 
     const currentNode = nodesRef.current.get(focusRef.current)
     expandNode(manga.id, currentNode ? { x: currentNode.x, y: currentNode.y } : null)
 
-    // Smooth camera pan toward clicked node
-    camRef.current.tx    = targetNode.x
-    camRef.current.ty    = targetNode.y
-    // Gently zoom out so the previous node stays visible
-    camRef.current.tzoom = Math.min(camRef.current.zoom, 0.82)
+    if (isMobile) {
+      // モバイル: 展開後に全ノードが収まるよう自動フィット
+      setTimeout(() => zoomToFit(), 50)
+    } else {
+      // デスクトップ: クリックしたノードへスムーズパン
+      camRef.current.tx    = targetNode.x
+      camRef.current.ty    = targetNode.y
+      camRef.current.tzoom = Math.min(camRef.current.zoom, 1.10)
+    }
 
     // Update history (jumping back collapses forward history)
     const hist = histRef.current
@@ -258,13 +277,15 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
     if (!n) return
     camRef.current.tx    = n.x
     camRef.current.ty    = n.y
-    camRef.current.tzoom = 0.82
+    camRef.current.tzoom = isMobile ? 1.35 : 1.10
   }
 
   // ── Initialise ───────────────────────────────────────────────────────────
   useEffect(() => {
+    flushQueue()   // 前のルートで溜まった pending 画像リクエストをクリア
     nodesRef.current.clear()
     edgesRef.current.clear()
+    lastNavRef.current = 0
     const now = Date.now()
     nodesRef.current.set(rootManga.id, { manga: rootManga, x: 0, y: 0, born: now })
     expandNode(rootManga.id, null)
@@ -472,7 +493,7 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
           const score = ts[id] ?? 0
           dAlpha = score > 0 ? Math.min(1.0, 0.55 + score * 0.45) : 0.10
         } else {
-          dAlpha = isDirect ? 0.78 : isHov ? 0.70 : 0.38
+          dAlpha = isDirect ? 0.85 : isHov ? 0.78 : 0.60
         }
         const alpha  = dAlpha * age
 
@@ -481,12 +502,11 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
 
         // Glow halo (soft, behind the card)
         if ((isFocus || isHov || inPath || isDirect || tagMatch) && age > 0.05) {
-          const gr  = Math.max(cw, ch) * (isFocus ? 1.4 : tagMatch ? 1.15 : isDirect ? 0.95 : 0.80)
+          const gr  = Math.max(cw, ch) * (isFocus ? 1.2 : isDirect ? 0.75 : 0.65)
           const grd = ctx.createRadialGradient(sx, sy, 0, sx, sy, gr)
-          const glowIntensity = isFocus ? 0.35 : tagMatch ? 0.28 : 0.18
+          const glowIntensity = isFocus ? 0.25 : 0.12
           const ga  = Math.round(alpha * glowIntensity * 255).toString(16).padStart(2, '0')
-          const glowColor = tagMatch && !isFocus ? '#22d3ee' : color
-          grd.addColorStop(0, glowColor + ga); grd.addColorStop(1, glowColor + '00')
+          grd.addColorStop(0, color + ga); grd.addColorStop(1, color + '00')
           ctx.globalAlpha = 1
           ctx.beginPath(); ctx.arc(sx, sy, gr, 0, Math.PI * 2)
           ctx.fillStyle = grd; ctx.fill()
@@ -516,8 +536,8 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
           // Dim non-focused cards for depth
           if (!isFocus) {
             ctx.fillStyle = isLight
-              ? `rgba(245,244,240,${(1 - dAlpha) * 0.55})`
-              : `rgba(0,0,12,${(1 - dAlpha) * 0.62})`
+              ? `rgba(245,244,240,${(1 - dAlpha) * 0.35})`
+              : `rgba(0,0,12,${(1 - dAlpha) * 0.40})`
             ctx.fillRect(clx, cty, cw, ch)
           }
           // Bottom gradient for title readability
@@ -540,20 +560,18 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
 
         ctx.restore()
 
-        // Genre border (tagMatch は cyan でハイライト)
+        // Genre border
         ctx.globalAlpha = alpha
         rrect(ctx, clx, cty, cw, ch, cr)
         ctx.strokeStyle = isFocus
           ? (isLight ? '#5046e5ee' : '#c43030ee')
-          : tagMatch
-            ? '#22d3eecc'
-            : color + (isDirect ? '88' : '44')
-        ctx.lineWidth   = (isFocus ? 2.2 : tagMatch ? 1.8 : 1.2) * zoom * scale
+          : color + (tagMatch ? 'cc' : isDirect ? '88' : '44')
+        ctx.lineWidth   = (isFocus ? 2.2 : tagMatch ? 1.6 : 1.2) * zoom * scale
         ctx.stroke()
 
         // Title text
         if (zoom > 0.22 && age > 0.3) {
-          const title    = node.manga.title
+          const title    = node.manga.title_ja || node.manga.title
           const fontSize = Math.min(11, Math.max(6, 9 * zoom * scale))
           ctx.font       = `${isFocus ? '700' : '500'} ${fontSize}px 'Exo 2',sans-serif`
           ctx.textAlign  = 'center'
@@ -670,7 +688,7 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
         }
 
         setTooltip({
-          title: node.manga.title,
+          title: node.manga.title_ja || node.manga.title,
           commonTags,
           x: rect.left + W / 2 + (node.x - cam.x) * cam.zoom,
           y: rect.top  + H / 2 + (node.y - cam.y) * cam.zoom - ch2 / 2,
@@ -744,6 +762,34 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
     pinchRef.current = null
   }
 
+  // ── Clean up: 履歴以外のノードを削除し、フォーカスから再展開 ────────────
+  function cleanUp() {
+    const nodes = nodesRef.current
+    const edges = edgesRef.current
+    const hist  = histRef.current
+
+    // 履歴に含まれないノードを削除
+    const toRemove = []
+    nodes.forEach((_, id) => {
+      if (!hist.includes(id)) toRemove.push(id)
+    })
+    toRemove.forEach(id => nodes.delete(id))
+
+    // 孤立エッジを削除
+    const deadEdges = []
+    edges.forEach(key => {
+      const [idA, idB] = key.split('|')
+      if (!nodes.has(idA) || !nodes.has(idB)) deadEdges.push(key)
+    })
+    deadEdges.forEach(key => edges.delete(key))
+
+    // フォーカスから再展開
+    expandNode(focusRef.current, null)
+
+    setUi(prev => ({ ...prev, nodeCount: nodes.size }))
+    reCenter()
+  }
+
   // ── Breadcrumb jump ───────────────────────────────────────────────────────
   function jumpTo(id, sliceEnd) {
     const node = nodesRef.current.get(id)
@@ -779,56 +825,154 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
         const acc   = isL ? '#6d6af8' : '#818cf8'
         const accBg = isL ? 'rgba(109,106,248,0.08)' : 'rgba(129,140,248,0.10)'
         const btnBg = isL ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.04)'
-        const bStyle = { background: btnBg, border: `1px solid ${hBdr}`, borderRadius: 6, color: tSub, cursor: 'pointer', padding: isMobile ? '8px 14px' : '4px 10px', fontSize: isMobile ? 14 : 12, fontWeight: 600, flexShrink: 0, transition: 'all 0.12s' }
+        const bStyle = { background: btnBg, border: `1px solid ${hBdr}`, borderRadius: 6, color: tSub, cursor: 'pointer', padding: isMobile ? '4px 8px' : '4px 10px', fontSize: isMobile ? 11 : 12, fontWeight: 600, flexShrink: 0, transition: 'all 0.12s' }
+        const iconBtn = { ...bStyle, padding: isMobile ? '4px 8px' : '4px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
         return (
           <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '0 12px',
+            display: 'flex', flexDirection: 'column',
             borderBottom: `1px solid ${hBdr}`,
             background: hBg,
             backdropFilter: 'blur(16px)',
-            flexShrink: 0, height: isMobile ? 52 : 44, zIndex: 10,
+            flexShrink: 0, zIndex: 10,
           }}>
-            <button onClick={onClose} style={bStyle}>{backLabel ?? '← マップ'}</button>
 
-            <div style={{ width: 1, height: 18, background: hBdr, flexShrink: 0 }} />
-
-            {/* Breadcrumb */}
-            <div style={{ display:'flex', alignItems:'center', gap:2, flex:1, minWidth:0, overflow:'hidden' }}>
-              {history.map((id, i) => {
-                const nd = nodesRef.current.get(id)
-                if (!nd) return null
-                const cur = i === history.length - 1
-                return (
-                  <span key={`${id}-${i}`} style={{ display:'flex', alignItems:'center', gap:2, minWidth:0, flexShrink:1 }}>
-                    {i > 0 && <span style={{ color: hBdr, fontSize:13, flexShrink:0 }}>›</span>}
-                    <button
-                      onClick={() => !cur && jumpTo(id, i + 1)}
-                      title={nd.manga.title}
-                      style={{
-                        background: cur ? accBg : 'transparent',
-                        border: cur ? `1px solid ${acc}55` : '1px solid transparent',
-                        borderRadius:4, padding: isMobile ? '6px 10px' : '3px 8px',
-                        color: cur ? acc : tSub,
-                        cursor: cur ? 'default' : 'pointer',
-                        fontSize: isMobile ? 13 : 12, whiteSpace:'nowrap', overflow:'hidden',
-                        textOverflow:'ellipsis', maxWidth: isMobile ? 100 : 150, flexShrink:1,
-                        fontWeight: cur ? 600 : 400,
-                      }}
-                    >{nd.manga.title}</button>
-                  </span>
-                )
-              })}
+          {isMobile ? (
+            <>
+            {/* ── モバイル 1行目: 戻る + 検索バー（コンパクト） ── */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 8px' }}>
+              <button onClick={onClose} style={{ ...iconBtn, fontSize: 14, padding: '4px 8px' }}>←</button>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <SearchBar
+                  mangaData={mangaData}
+                  onSearch={() => {}}
+                  onSelect={item => onRerootSearch && onRerootSearch(item)}
+                  variant={theme === 'dark' ? 'dark' : 'light'}
+                  compact
+                />
+              </div>
             </div>
 
-            <button onClick={zoomToFit} title="全ノードを表示" style={bStyle}>⊡ Fit</button>
-            <button onClick={reCenter} title="現在地に戻る" style={bStyle}>◎</button>
+            {/* ── モバイル 2行目: マップ操作 + ナビ ── */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '0 8px 5px' }}>
+              <button onClick={cleanUp} title="辿ったパス以外を消去して整理" style={{ ...bStyle, padding: '3px 6px', fontSize: 10 }}>✦整理</button>
+              <button onClick={zoomToFit} title="全ノードを表示" style={{ ...bStyle, padding: '3px 6px', fontSize: 10 }}>⊡Fit</button>
+              <button onClick={reCenter} title="現在地に戻る" style={{ ...bStyle, padding: '3px 6px', fontSize: 11 }}>◎</button>
+              {/* 既読除外 */}
+              {onToggleHideViewed && (
+                <button onClick={onToggleHideViewed}
+                  title={hideViewedMode ? `既読除外中 (${viewedCount}件)` : '既読作品を除外'}
+                  style={{ ...bStyle, padding: '3px 6px', fontSize: 10,
+                    background: hideViewedMode ? accBg : bStyle.background,
+                    borderColor: hideViewedMode ? `${acc}55` : bStyle.borderColor,
+                    color: hideViewedMode ? acc : bStyle.color,
+                  }}
+                >{hideViewedMode ? `👁${viewedCount}` : '👁'}</button>
+              )}
+              {/* コミュニティ */}
+              {onToggleCommunityMode && (
+                <button onClick={onToggleCommunityMode}
+                  title={communityMode ? 'コミュニティモードON' : 'コミュニティモードOFF'}
+                  style={{ ...bStyle, padding: '3px 6px', fontSize: 10,
+                    background: communityMode ? accBg : bStyle.background,
+                    borderColor: communityMode ? `${acc}55` : bStyle.borderColor,
+                    color: communityMode ? acc : bStyle.color,
+                  }}
+                >{communityMode ? '◉COM' : '◎COM'}</button>
+              )}
+              <div style={{ flex: 1 }} />
+              {/* お気に入り */}
+              {onOpenFavorites && (
+                <button onClick={onOpenFavorites}
+                  title={`お気に入り${favoritesCount > 0 ? ` (${favoritesCount})` : ''}`}
+                  style={{ ...bStyle, padding: '3px 6px', fontSize: 10, color: '#f472b6', borderColor: '#f472b644' }}
+                >{favoritesCount > 0 ? `♥${favoritesCount}` : '♥'}</button>
+              )}
+              {/* テーマ */}
+              {onToggleTheme && (
+                <button onClick={onToggleTheme}
+                  title={theme === 'light' ? 'ダークモード' : 'ライトモード'}
+                  style={{ ...bStyle, padding: '3px 6px', fontSize: 11 }}
+                >{theme === 'light' ? '🌙' : '☀️'}</button>
+              )}
+              {/* ログイン */}
+              {currentUser ? (
+                <a href={`/user/${currentUser}`} title="マイページを見る"
+                  style={{ ...bStyle, padding: '3px 6px', fontSize: 10, fontWeight: 700, background: accBg, borderColor: `${acc}55`, color: acc, textDecoration: 'none' }}
+                >◉{currentUser.slice(0, 4)}</a>
+              ) : onLogin && (
+                <button onClick={onLogin}
+                  style={{ ...bStyle, padding: '3px 6px', fontSize: 10, fontWeight: 700, background: accBg, borderColor: `${acc}55`, color: acc }}
+                >ログイン</button>
+              )}
+            </div>
 
-            {focusNode && (
-              <button onClick={() => onSelect(focusNode.manga)} style={{ ...bStyle, background: accBg, border: `1px solid ${acc}55`, color: acc }}>
-                詳細 →
-              </button>
+            {/* ── モバイル: タグセレクター ── */}
+            {tagList && tagList.length > 0 && (
+              <div style={{ padding: '0 8px 5px' }}>
+                <TagSelector tagList={tagList} selectedTags={selectedTags} onToggleTag={onToggleTag} onClearTags={onClearTags} matchCount={tagMatchCount} totalCount={tagTotalCount} variant={theme === 'dark' ? 'dark' : 'light'} filterMode={tagFilterMode} onFilterModeChange={onTagFilterModeChange} />
+              </div>
             )}
+
+            {/* ── モバイル 3行目: 作品遷移履歴 ── */}
+            {mapHistory.length > 1 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '0 8px 5px', overflowX: 'auto' }}
+                onTouchStart={e => e.stopPropagation()} onTouchMove={e => e.stopPropagation()}
+              >
+                <button onClick={onMapBack}
+                  style={{ flexShrink: 0, padding: '5px 10px', borderRadius: 7, border: `1px solid ${acc}55`, background: accBg, color: acc, fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >← 戻る</button>
+                {mapHistory.slice(0, -1).map((item, i, arr) => {
+                  const isLatest = i === arr.length - 1
+                  return (
+                    <button key={`${item.id}-${i}`}
+                      onClick={() => onMapHistoryNav && onMapHistoryNav(item, i + 1)}
+                      style={{
+                        flexShrink: 0, padding: '5px 10px', borderRadius: 7, cursor: 'pointer',
+                        fontSize: 11, whiteSpace: 'nowrap', fontWeight: isLatest ? 600 : 400,
+                        background: isLatest ? accBg : btnBg,
+                        border: `1px solid ${isLatest ? acc + '55' : hBdr}`,
+                        color: isLatest ? acc : tSub,
+                      }}
+                    >{item.title_ja || item.title}</button>
+                  )
+                })}
+              </div>
+            )}
+            </>
+          ) : (
+            /* ── デスクトップ: 既存の1行ヘッダー ── */
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', height: 44 }}>
+              <button onClick={onClose} style={bStyle}>{backLabel ?? '← マップ'}</button>
+
+              <div style={{ flex: 1 }} />
+
+              {/* 注目度フィルター */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 1, background: btnBg, border: `1px solid ${hBdr}`, borderRadius: 6, padding: '2px 5px', flexShrink: 0 }}>
+                {[1,2,3,4,5].map(n => {
+                  const starColors = isL ? POP_STAR_COLORS_LIGHT : POP_STAR_COLORS
+                  const active = n >= minPopularity
+                  const col = active ? starColors[n] : (isL ? '#cbd5e1' : '#374151')
+                  return (
+                    <button key={n} onClick={() => onPopularityChange && onPopularityChange(n === minPopularity ? 1 : n)}
+                      title={['','データなし','マイナー','中堅人気','人気作','覇権'][n]}
+                      style={{ background: 'none', border: 'none', padding: '1px 2px', cursor: 'pointer', fontSize: 13, color: col, lineHeight: 1, transition: 'color 0.12s' }}
+                    >★</button>
+                  )
+                })}
+              </div>
+
+              <button onClick={cleanUp} title="辿ったパス以外を消去して整理" style={bStyle}>✦ 整理</button>
+              <button onClick={zoomToFit} title="全ノードを表示" style={bStyle}>⊡ Fit</button>
+              <button onClick={reCenter} title="現在地に戻る" style={bStyle}>◎</button>
+
+              {focusNode && (
+                <button onClick={() => onSelect(focusNode.manga)} style={{ ...bStyle, background: accBg, border: `1px solid ${acc}55`, color: acc }}>
+                  詳細 →
+                </button>
+              )}
+            </div>
+          )}
+
           </div>
         )
       })()}
@@ -850,11 +994,12 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
 
         {/* Depth legend */}
         <div style={{
-          position:'absolute', bottom: isMobile ? 92 : 52, left:14, zIndex:5,
-          background:'rgba(17,24,39,0.92)', border:'1px solid #1e2535',
-          borderRadius:8, padding:'8px 12px',
-          display:'flex', flexDirection:'column', gap:5,
-          boxShadow:'0 2px 16px rgba(0,0,0,0.4)',
+          position:'absolute', bottom: (isMobile ? 12 : 52) + bottomOffset, left: isMobile ? 8 : 14, zIndex:5,
+          background: theme === 'light' ? 'rgba(250,249,245,0.94)' : 'rgba(17,24,39,0.92)',
+          border: `1px solid ${theme === 'light' ? '#e5e9f2' : '#1e2535'}`,
+          borderRadius: isMobile ? 6 : 8, padding: isMobile ? '4px 8px' : '8px 12px',
+          display:'flex', flexDirection:'column', gap: isMobile ? 2 : 5,
+          boxShadow: theme === 'light' ? '0 2px 12px rgba(0,0,0,0.08)' : '0 2px 16px rgba(0,0,0,0.4)',
           backdropFilter:'blur(12px)',
         }}>
           {[
@@ -863,38 +1008,60 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
             { label:'隣接作品',   op:0.48 },
             { label:'その他',     op:0.22 },
           ].map(({ label, op }) => (
-            <div key={label} style={{ display:'flex', alignItems:'center', gap:7 }}>
-              <div style={{ width:8, height:8, borderRadius:'50%', background:'#818cf8', opacity:op, flexShrink:0 }} />
-              <span style={{ fontSize:10, color:'#6b7280' }}>{label}</span>
+            <div key={label} style={{ display:'flex', alignItems:'center', gap: isMobile ? 4 : 7 }}>
+              <div style={{ width: isMobile ? 6 : 8, height: isMobile ? 6 : 8, borderRadius:'50%', background: theme === 'light' ? '#6d6af8' : '#818cf8', opacity:op, flexShrink:0 }} />
+              <span style={{ fontSize: isMobile ? 8 : 10, color: theme === 'light' ? '#6b7280' : '#6b7280' }}>{label}</span>
             </div>
           ))}
         </div>
 
-        {/* Hint bar */}
-        <div style={{
-          position:'absolute', bottom: isMobile ? 84 : 16, left:'50%', transform:'translateX(-50%)',
-          background:'rgba(13,17,23,0.88)', border:'1px solid #1e2535',
-          borderRadius:8, padding:'5px 14px',
-          fontSize:11, color:'#4b5563', pointerEvents:'none',
-          display:'flex', gap:14, whiteSpace:'nowrap',
-          backdropFilter:'blur(12px)',
-          boxShadow:'0 2px 16px rgba(0,0,0,0.4)',
-        }}>
-          {isMobile ? (
-            <>
-              <span><span style={{color:'#818cf8'}}>タップ</span> 移動・展開</span>
-              <span><span style={{color:'#818cf8'}}>ドラッグ</span> パン</span>
-              <span><span style={{color:'#818cf8'}}>ピンチ</span> ズーム</span>
-            </>
-          ) : (
-            <>
-              <span><span style={{color:'#818cf8'}}>クリック</span> 移動・展開</span>
-              <span><span style={{color:'#818cf8'}}>ドラッグ</span> パン</span>
-              <span><span style={{color:'#818cf8'}}>スクロール</span> ズーム</span>
-              <span><span style={{color:'#818cf8'}}>⊡ Fit</span> 全体表示</span>
-            </>
-          )}
-        </div>
+        {/* 注目度フィルター（モバイル: 右下、深度レジェンドの対面） */}
+        {isMobile && (
+          <div style={{
+            position:'absolute', bottom: 12 + bottomOffset, right:8, zIndex:5,
+            background: theme === 'light' ? 'rgba(250,249,245,0.94)' : 'rgba(17,24,39,0.92)',
+            border: `1px solid ${theme === 'light' ? '#e5e9f2' : '#1e2535'}`,
+            borderRadius:6, padding:'4px 6px',
+            display:'flex', flexDirection:'column', gap:2, alignItems:'center',
+            boxShadow: theme === 'light' ? '0 2px 12px rgba(0,0,0,0.08)' : '0 2px 16px rgba(0,0,0,0.4)',
+            backdropFilter:'blur(12px)',
+          }}>
+            <div style={{ display:'flex', gap:1, alignItems:'center' }}>
+              {[1,2,3,4,5].map(n => {
+                const starColors = theme === 'light' ? POP_STAR_COLORS_LIGHT : POP_STAR_COLORS
+                const col = n >= minPopularity ? (starColors[n] || '#818cf8') : (theme === 'light' ? '#cbd5e1' : '#374151')
+                return (
+                  <button key={n} onClick={() => onPopularityChange && onPopularityChange(n === minPopularity ? 1 : n)}
+                    title={['','データなし','マイナー','中堅人気','人気作','覇権'][n]}
+                    style={{ background:'none', border:'none', padding:'1px', cursor:'pointer', fontSize:12, color:col, lineHeight:1 }}
+                  >{n < minPopularity ? '☆' : '★'}</button>
+                )
+              })}
+            </div>
+            {minPopularity > 1 && (
+              <span style={{ fontSize:8, fontWeight:700, color: (theme === 'light' ? POP_STAR_COLORS_LIGHT : POP_STAR_COLORS)[minPopularity], letterSpacing:'0.04em' }}>
+                ★{minPopularity}以上
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Hint bar (desktop only) */}
+        {!isMobile && (
+          <div style={{
+            position:'absolute', bottom: 16 + bottomOffset, left:14,
+            background:'rgba(13,17,23,0.75)', border:'1px solid #1e2535',
+            borderRadius:6, padding:'4px 10px',
+            fontSize:10, color:'#4b5563', pointerEvents:'none',
+            display:'flex', gap:10, whiteSpace:'nowrap',
+            backdropFilter:'blur(12px)',
+          }}>
+            <span><span style={{color:'#818cf8'}}>クリック</span> 移動・展開</span>
+            <span><span style={{color:'#818cf8'}}>ドラッグ</span> パン</span>
+            <span><span style={{color:'#818cf8'}}>スクロール</span> ズーム</span>
+            <span><span style={{color:'#818cf8'}}>⊡ Fit</span> 全体表示</span>
+          </div>
+        )}
 
         {tooltip && (
           <div style={{
@@ -925,11 +1092,11 @@ export default function SimilarityTreeMap({ rootManga, computeNeighbors, onClose
                       <div key={t.name} style={{ display:'flex', alignItems:'center', gap:6 }}>
                         {/* タグ名 */}
                         <span style={{
-                          fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.04em',
+                          fontSize:9, fontWeight:700, letterSpacing:'0.02em',
                           color:tc, minWidth:70,
                           overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
                         }}>
-                          {t.name}
+                          {getTagLabel(t.name)}
                         </span>
                         {/* ランクバー */}
                         <div style={{ flex:1, position:'relative', height:5, background:'#1e2535', borderRadius:3, overflow:'hidden' }}>

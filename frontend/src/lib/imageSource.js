@@ -20,6 +20,17 @@ const CUSTOM_BASE_URL = 'https://your-cdn.example.com/covers'
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
+ * manga の楽天アフィリエイト URL を返す。なければ null。
+ * 楽天データ取得済みの作品のみ非 null になる。
+ *
+ * @param {object} manga
+ * @returns {string|null}
+ */
+export function getAffiliateUrl(manga) {
+  return manga?.affiliate_url || null
+}
+
+/**
  * manga オブジェクトからカバー画像の URL を返す。
  * SOURCE を切り替えるだけで配信元を変更できる。
  *
@@ -38,6 +49,7 @@ export function getCoverUrl(manga) {
 
     case 'anilist':
     default:
-      return manga.cover || null
+      // AniList カバーを優先、なければ楽天画像にフォールバック
+      return manga.cover || manga.image_url || null
   }
 }

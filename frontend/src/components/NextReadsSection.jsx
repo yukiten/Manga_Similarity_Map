@@ -2,6 +2,41 @@ import { useState, useEffect, useRef } from 'react'
 import { getTagColor } from '../utils'
 import { getCoverUrl } from '../lib/imageSource'
 
+function getUI(theme) {
+  const isDark = theme === 'dark'
+  return {
+    borderTop:      isDark ? '#191928'              : '#e5e7f0',
+    labelColor:     isDark ? '#484890'              : '#6b7280',
+    subLabel:       isDark ? '#303058'              : '#9ca3af',
+    btnBorder:      isDark ? '#2a2a48'              : '#e0ddd8',
+    btnText:        isDark ? '#505070'              : '#6b7280',
+    formBg:         isDark ? '#0f0f1e'              : '#f8f7f3',
+    inputBg:        isDark ? '#14142a'              : '#ffffff',
+    inputBorder:    isDark ? '#252545'              : '#e0ddd8',
+    inputText:      isDark ? '#c0c0e0'              : '#1f2937',
+    fieldLabel:     isDark ? '#484870'              : '#6b7280',
+    dropdownBg:     isDark ? '#12122a'              : '#ffffff',
+    dropdownBorder: isDark ? '#252545'              : '#e0ddd8',
+    dropdownShadow: isDark ? '0 8px 24px rgba(0,0,0,0.6)' : '0 8px 24px rgba(0,0,0,0.12)',
+    dropdownHover:  isDark ? '#1a1a38'              : '#f5f3ef',
+    dropdownRowBorder: isDark ? '#1a1a30'           : '#f0ede8',
+    dropdownTitle:  isDark ? '#c0c0e0'              : '#1f2937',
+    dropdownSub:    isDark ? '#505080'              : '#9ca3af',
+    errorText:      '#f87171',
+    btnDisabledBg:  isDark ? '#1e1e38'              : '#ede9e3',
+    btnDisabledText: isDark ? '#404060'             : '#bbb8b4',
+    loadingText:    isDark ? '#363660'              : '#9ca3af',
+    emptyText:      isDark ? '#303050'              : '#9ca3af',
+    cardBg:         isDark ? '#0d0d1c'              : '#ffffff',
+    cardBorder:     isDark ? '#1a1a2e'              : '#eae8e2',
+    titleText:      isDark ? '#c0c0e0'              : '#1f2937',
+    commentText:    isDark ? '#505075'              : '#9ca3af',
+    voteBorderIdle: isDark ? '#252540'              : '#e0ddd8',
+    voteTextIdle:   isDark ? '#404060'              : '#9ca3af',
+    deleteBtnColor: isDark ? '#404060'              : '#9ca3af',
+  }
+}
+
 // localStorage で投票済みIDを管理（重複投票防止）
 function getVotedSet() {
   try { return new Set(JSON.parse(localStorage.getItem('next-read-votes') || '[]')) } catch { return new Set() }
@@ -44,33 +79,35 @@ function MiniCover({ manga, size = 52 }) {
   )
 }
 
-export default function NextReadsSection({ mangaId, allManga = [], onSelect, primaryColor }) {
-  const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
+export default function NextReadsSection({ mangaId, allManga = [], onSelect, onSelectSimilarMap, primaryColor, authToken, currentUser, theme = 'dark' }) {
+  const UI = getUI(theme)
+
+  const [items, setItems]         = useState([])
+  const [loading, setLoading]     = useState(true)
+  const [showForm, setShowForm]   = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState('')
-  const [voted, setVoted] = useState(() => getVotedSet())
+  const [error, setError]         = useState('')
+  const [voted, setVoted]         = useState(() => getVotedSet())
   const [suggested, setSuggested] = useState(() => getSuggestedSet(mangaId))
 
-  // search state
-  const [query, setQuery] = useState('')
+  const [query, setQuery]           = useState('')
   const [suggestions, setSuggestions] = useState([])
-  const [picked, setPicked] = useState(null)  // {id, title, title_ja}
-  const [comment, setComment] = useState('')
+  const [picked, setPicked]         = useState(null)
+  const [comment, setComment]       = useState('')
   const inputRef = useRef(null)
 
   useEffect(() => {
     setLoading(true)
     setItems([])
     setSuggested(getSuggestedSet(mangaId))
-    fetch(`/api/manga/${encodeURIComponent(mangaId)}/next-reads`)
+    fetch(`/api/manga/${encodeURIComponent(mangaId)}/next-reads`, {
+      headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+    })
       .then(r => r.json())
       .then(data => { setItems(Array.isArray(data) ? data : []); setLoading(false) })
       .catch(() => setLoading(false))
   }, [mangaId])
 
-  // local search over allManga
   useEffect(() => {
     if (!query.trim()) { setSuggestions([]); return }
     const q = query.toLowerCase()
@@ -97,7 +134,10 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
     try {
       const res = await fetch(`/api/manga/${encodeURIComponent(mangaId)}/next-reads`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
         body: JSON.stringify({ to_manga_id: picked.id, comment: comment.trim() }),
       })
       if (!res.ok) {
@@ -105,7 +145,6 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
         throw new Error(d.detail || 'エラーが発生しました')
       }
       const data = await res.json()
-      // attach manga info from local data
       const fullManga = allManga.find(m => m.id === data.to_manga_id)
       if (fullManga) data.manga = { id: fullManga.id, title: fullManga.title, title_ja: fullManga.title_ja, cover_url: fullManga.cover_url, score: fullManga.score, genre: fullManga.genre, tags: (fullManga.tags || []).slice(0, 3) }
       setItems(prev => {
@@ -125,6 +164,20 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
     }
   }
 
+  async function handleDelete(item) {
+    if (!window.confirm('このおすすめを削除しますか？')) return
+    try {
+      const res = await fetch(`/api/next-reads/${item.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${authToken}` },
+      })
+      if (!res.ok && res.status !== 204) throw new Error('削除に失敗しました')
+      setItems(prev => prev.filter(i => i.id !== item.id))
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
   async function handleVote(item) {
     if (voted.has(item.id)) return
     try {
@@ -140,24 +193,31 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
     } catch {}
   }
 
+  const inputStyle = {
+    width: '100%', background: UI.inputBg,
+    border: `1px solid ${UI.inputBorder}`,
+    borderRadius: 8, padding: '8px 12px', color: UI.inputText, fontSize: 13,
+    outline: 'none', boxSizing: 'border-box',
+  }
+
   return (
-    <div style={{ padding: '20px 22px', borderTop: '1px solid #191928' }}>
+    <div style={{ padding: '20px 22px', borderTop: `1px solid ${UI.borderTop}` }}>
       {/* Section header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 11, color: '#484890', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 600 }}>
+          <span style={{ fontSize: 11, color: UI.labelColor, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 600 }}>
             Next Reads
           </span>
-          <span style={{ fontSize: 11, color: '#303058' }}>— 読んだ後はこれ</span>
+          <span style={{ fontSize: 11, color: UI.subLabel }}>— 読んだ後はこれ</span>
         </div>
         <button
           onClick={() => { setShowForm(v => !v); setError('') }}
           style={{
             fontSize: 11, fontWeight: 600, letterSpacing: '0.06em',
             padding: '5px 12px', borderRadius: 7,
-            border: `1px solid ${showForm ? primaryColor + '80' : '#2a2a48'}`,
+            border: `1px solid ${showForm ? primaryColor + '80' : UI.btnBorder}`,
             background: showForm ? `${primaryColor}18` : 'transparent',
-            color: showForm ? primaryColor : '#505070',
+            color: showForm ? primaryColor : UI.btnText,
             cursor: 'pointer', transition: 'all 0.15s',
           }}
         >
@@ -168,12 +228,12 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
       {/* Form */}
       {showForm && (
         <form onSubmit={handleSubmit} style={{
-          background: '#0f0f1e', border: `1px solid ${primaryColor}30`,
+          background: UI.formBg, border: `1px solid ${primaryColor}30`,
           borderRadius: 12, padding: '16px', marginBottom: 16,
           display: 'flex', flexDirection: 'column', gap: 12,
         }}>
           <div style={{ position: 'relative' }}>
-            <div style={{ fontSize: 11, color: '#484870', marginBottom: 6, letterSpacing: '0.06em' }}>
+            <div style={{ fontSize: 11, color: UI.fieldLabel, marginBottom: 6, letterSpacing: '0.06em' }}>
               次に読む作品を検索
             </div>
             <input
@@ -181,17 +241,14 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
               value={query}
               onChange={e => { setQuery(e.target.value); setPicked(null) }}
               placeholder="タイトルで検索…"
-              style={{
-                width: '100%', background: '#14142a', border: `1px solid ${picked ? primaryColor + '60' : '#252545'}`,
-                borderRadius: 8, padding: '8px 12px', color: '#c0c0e0', fontSize: 13,
-                outline: 'none', boxSizing: 'border-box',
-              }}
+              style={{ ...inputStyle, border: `1px solid ${picked ? primaryColor + '60' : UI.inputBorder}` }}
             />
             {suggestions.length > 0 && (
               <div style={{
                 position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
-                background: '#12122a', border: '1px solid #252545', borderRadius: 10,
-                marginTop: 4, overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+                background: UI.dropdownBg, border: `1px solid ${UI.dropdownBorder}`,
+                borderRadius: 10, marginTop: 4, overflow: 'hidden',
+                boxShadow: UI.dropdownShadow,
               }}>
                 {suggestions.map(m => (
                   <div
@@ -200,9 +257,9 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
                     style={{
                       padding: '9px 14px', cursor: 'pointer',
                       display: 'flex', alignItems: 'center', gap: 10,
-                      borderBottom: '1px solid #1a1a30',
+                      borderBottom: `1px solid ${UI.dropdownRowBorder}`,
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#1a1a38'}
+                    onMouseEnter={e => e.currentTarget.style.background = UI.dropdownHover}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     <div style={{
@@ -214,8 +271,8 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
                       )}
                     </div>
                     <div>
-                      <div style={{ fontSize: 13, color: '#c0c0e0' }}>{m.title_ja || m.title}</div>
-                      {m.title_ja && <div style={{ fontSize: 11, color: '#505080' }}>{m.title}</div>}
+                      <div style={{ fontSize: 13, color: UI.dropdownTitle }}>{m.title_ja || m.title}</div>
+                      {m.title_ja && <div style={{ fontSize: 11, color: UI.dropdownSub }}>{m.title}</div>}
                     </div>
                   </div>
                 ))}
@@ -223,7 +280,7 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
             )}
           </div>
           <div>
-            <div style={{ fontSize: 11, color: '#484870', marginBottom: 6, letterSpacing: '0.06em' }}>
+            <div style={{ fontSize: 11, color: UI.fieldLabel, marginBottom: 6, letterSpacing: '0.06em' }}>
               おすすめの理由（省略可）
             </div>
             <input
@@ -231,21 +288,18 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
               onChange={e => setComment(e.target.value)}
               placeholder="なぜこの作品を次に読むべきか…"
               maxLength={200}
-              style={{
-                width: '100%', background: '#14142a', border: '1px solid #252545',
-                borderRadius: 8, padding: '8px 12px', color: '#c0c0e0', fontSize: 13,
-                outline: 'none', boxSizing: 'border-box',
-              }}
+              style={inputStyle}
             />
           </div>
-          {error && <div style={{ fontSize: 12, color: '#f87171' }}>{error}</div>}
+          {error && <div style={{ fontSize: 12, color: UI.errorText }}>{error}</div>}
           <button
             type="submit"
             disabled={submitting || !picked}
             style={{
               padding: '9px 20px', borderRadius: 8,
-              background: (!picked || submitting) ? '#1e1e38' : `linear-gradient(135deg, ${primaryColor}cc, ${primaryColor}88)`,
-              border: 'none', color: !picked ? '#404060' : '#fff',
+              background: (!picked || submitting) ? UI.btnDisabledBg : `linear-gradient(135deg, ${primaryColor}cc, ${primaryColor}88)`,
+              border: 'none',
+              color: (!picked || submitting) ? UI.btnDisabledText : '#fff',
               fontSize: 13, fontWeight: 600,
               cursor: (!picked || submitting) ? 'not-allowed' : 'pointer',
               transition: 'all 0.15s',
@@ -258,9 +312,9 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
 
       {/* List */}
       {loading ? (
-        <div style={{ fontSize: 12, color: '#363660', padding: '8px 0' }}>読み込み中…</div>
+        <div style={{ fontSize: 12, color: UI.loadingText, padding: '8px 0' }}>読み込み中…</div>
       ) : items.length === 0 ? (
-        <div style={{ fontSize: 13, color: '#303050', padding: '4px 0' }}>
+        <div style={{ fontSize: 13, color: UI.emptyText, padding: '4px 0' }}>
           まだ登録されていません。この作品を読んだ後のおすすめを教えてください。
         </div>
       ) : (
@@ -269,17 +323,18 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
             const m = item.manga
             const color = m ? getTagColor(m.tags?.[0]?.name || m.genre) : '#6366f1'
             const hasVoted = voted.has(item.id)
-            const hasSuggested = suggested.has(item.to_manga_id)
+            const hasSuggested = item.is_own || suggested.has(item.to_manga_id)
             return (
               <div key={item.id} style={{
-                background: '#0d0d1c', border: '1px solid #1a1a2e',
+                background: UI.cardBg,
+                border: `1px solid ${item.is_own ? color + '40' : UI.cardBorder}`,
                 borderRadius: 10, padding: '10px 12px',
                 display: 'flex', alignItems: 'center', gap: 12,
               }}>
-                {/* Cover (clickable) */}
+                {/* Cover */}
                 {m && (
                   <div
-                    onClick={() => onSelect && onSelect({ ...allManga.find(x => x.id === m.id) || m })}
+                    onClick={() => { const full = allManga.find(x => x.id === m.id) || m; onSelectSimilarMap ? onSelectSimilarMap(full) : onSelect && onSelect(full) }}
                     style={{ cursor: 'pointer', flexShrink: 0 }}
                   >
                     <MiniCover manga={m} size={44} />
@@ -288,20 +343,38 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
                 {/* Info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div
-                    onClick={() => onSelect && onSelect({ ...allManga.find(x => x.id === m?.id) || m })}
-                    style={{ fontSize: 13, fontWeight: 600, color: '#c0c0e0', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 3 }}
+                    onClick={() => { const full = allManga.find(x => x.id === m?.id) || m; onSelectSimilarMap ? onSelectSimilarMap(full) : onSelect && onSelect(full) }}
+                    style={{ fontSize: 13, fontWeight: 600, color: UI.titleText, cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 3 }}
                     onMouseEnter={e => e.currentTarget.style.color = color}
-                    onMouseLeave={e => e.currentTarget.style.color = '#c0c0e0'}
+                    onMouseLeave={e => e.currentTarget.style.color = UI.titleText}
                   >
                     {m ? (m.title_ja || m.title) : item.to_manga_id}
                   </div>
                   {item.comment && (
-                    <div style={{ fontSize: 11, color: '#505075', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: 11, color: UI.commentText, lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {item.comment}
                     </div>
                   )}
+                  {item.username && !item.is_own && (
+                    <a href={`/user/${item.username}`} style={{ fontSize: 10, color: UI.commentText, marginTop: 2, display: 'block', textDecoration: 'none' }}
+                      onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+                      onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
+                    >{item.username}</a>
+                  )}
                   {hasSuggested && (
                     <div style={{ fontSize: 10, color: primaryColor + '88', marginTop: 2 }}>あなたが追加</div>
+                  )}
+                  {item.is_own && (
+                    <button
+                      onClick={() => handleDelete(item)}
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        fontSize: 10, color: UI.deleteBtnColor, padding: '1px 0', lineHeight: 1, marginTop: 2,
+                        display: 'block',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
+                      onMouseLeave={e => e.currentTarget.style.color = UI.deleteBtnColor}
+                    >削除</button>
                   )}
                 </div>
                 {/* Vote */}
@@ -311,14 +384,14 @@ export default function NextReadsSection({ mangaId, allManga = [], onSelect, pri
                   style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
                     padding: '6px 10px', borderRadius: 8, flexShrink: 0,
-                    border: `1px solid ${hasVoted ? color + '60' : '#252540'}`,
+                    border: `1px solid ${hasVoted ? color + '60' : UI.voteBorderIdle}`,
                     background: hasVoted ? `${color}18` : 'transparent',
-                    color: hasVoted ? color : '#404060',
+                    color: hasVoted ? color : UI.voteTextIdle,
                     cursor: hasVoted ? 'default' : 'pointer',
                     transition: 'all 0.15s',
                   }}
                   onMouseEnter={e => { if (!hasVoted) { e.currentTarget.style.borderColor = color + '60'; e.currentTarget.style.background = `${color}12`; e.currentTarget.style.color = color } }}
-                  onMouseLeave={e => { if (!hasVoted) { e.currentTarget.style.borderColor = '#252540'; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#404060' } }}
+                  onMouseLeave={e => { if (!hasVoted) { e.currentTarget.style.borderColor = UI.voteBorderIdle; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = UI.voteTextIdle } }}
                 >
                   <span style={{ fontSize: 14 }}>▲</span>
                   <span style={{ fontSize: 12, fontWeight: 700 }}>{item.votes}</span>

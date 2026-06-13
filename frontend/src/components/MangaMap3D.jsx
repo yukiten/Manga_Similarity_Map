@@ -4,6 +4,7 @@ import { OrbitControls, Stars, Line, Html } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import * as THREE from 'three'
 import { getTagColor, getEffectivePop } from '../utils'
+import { getTagLabel } from '../tagTranslations'
 import { getCoverUrl } from '../lib/imageSource'
 
 // ── シェーダー（改良版：core + inner-ring + outer-halo + aGlow） ─────────────
@@ -376,9 +377,9 @@ function HoverCard({ manga, tagIdf, theme }) {
                 }}>
                   <span style={{
                     fontSize: 8.5, fontWeight: 700, color: tc,
-                    textTransform: 'uppercase', letterSpacing: '0.08em',
+                    letterSpacing: '0.03em',
                   }}>
-                    {t.name}
+                    {getTagLabel(t.name)}
                   </span>
                   <span style={{
                     fontSize: 10, fontWeight: 800, color: tc,

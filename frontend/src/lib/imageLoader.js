@@ -9,6 +9,9 @@
 /** CDN に同時に投げる最大リクエスト数（ブラウザ上限 & CDN 負荷を考慮） */
 const MAX_CONCURRENT = 4
 
+/** キューに積める最大件数（これを超えた新規リクエストは破棄） */
+const MAX_QUEUE_SIZE = 32
+
 /** id → HTMLImageElement | 'queued' | 'loading' | 'error' */
 const cache  = new Map()
 
@@ -59,9 +62,22 @@ function pump() {
  */
 export function requestImage(id, url) {
   if (!id || !url || cache.has(id)) return
+  if (queue.length >= MAX_QUEUE_SIZE) return   // キューが満杯なら破棄
   cache.set(id, 'queued')
   queue.push({ id, url })
   pump()
+}
+
+/**
+ * 待機中のキューをフラッシュする（キャッシュ済み画像は保持）。
+ * ルートマンガが切り替わったとき等、古い pending を捨てたい場合に呼ぶ。
+ */
+export function flushQueue() {
+  // 'queued' 状態のエントリをキャッシュから削除してキューも空にする
+  queue.forEach(({ id }) => {
+    if (cache.get(id) === 'queued') cache.delete(id)
+  })
+  queue.length = 0
 }
 
 /**

@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState, useMemo } from 'react'
 import { getTagColor } from '../utils'
+import { getTagLabel } from '../tagTranslations'
 import { getCoverUrl } from '../lib/imageSource'
 import { requestImage, getImage } from '../lib/imageLoader'
 
@@ -121,8 +122,8 @@ function analyzeTaste(favManga) {
   // Auto-generated comment
   const g1 = topGenres[0]?.[0] || '', g2 = topGenres[1]?.[0] || ''
   const t1 = topTags[0]?.name || '', t2 = topTags[1]?.name || ''
-  const genreStr = g2 ? `${g1}・${g2}` : g1
-  const tagStr   = t2 ? `${t1}・${t2}` : t1
+  const genreStr = g2 ? `${getTagLabel(g1)}・${getTagLabel(g2)}` : getTagLabel(g1)
+  const tagStr   = t2 ? `${getTagLabel(t1)}・${getTagLabel(t2)}` : getTagLabel(t1)
   let comment = ''
   if (genreStr) comment += `${genreStr}が中心の好み。`
   if (tagStr)   comment += ` ${tagStr}の要素を持つ作品への親和性が高い。`
@@ -157,10 +158,10 @@ function screenToWorld(sx, sy, cam, W, H) {
 function physicsStep(nodes, edges, dragIdx) {
   const DAMP = 0.86, GRAVITY = 0.0008
 
-  // Skip entirely when everything has settled (saves CPU + stops trembling)
+  // 収束判定: ノード数に依存しないよう平均KEで判定
   let totalKE = 0
   for (const n of nodes) totalKE += n.vx * n.vx + n.vy * n.vy
-  if (totalKE < 0.08 && dragIdx < 0) return false
+  if (totalKE / Math.max(1, nodes.length) < 0.0012 && dragIdx < 0) return false
 
   for (let i = 0; i < nodes.length; i++) {
     if (i === dragIdx) continue
@@ -279,7 +280,7 @@ function drawFavBackground(ctx, W, H, cam, theme) {
   }
 }
 
-function renderFrame(canvas, nodes, edges, cam, hovIdx, selMode, selIds, theme = 'light') {
+function renderFrame(canvas, nodes, edges, cam, hovIdx, selMode, selIds, theme = 'light', favorites = new Set()) {
   const isLight = theme === 'light'
   const ctx = canvas.getContext('2d')
   const W = canvas.width, H = canvas.height
@@ -344,13 +345,17 @@ function renderFrame(canvas, nodes, edges, cam, hovIdx, selMode, selIds, theme =
       : isHov ? color + 'cc' : color + '77'
     ctx.strokeStyle = borderColor; ctx.lineWidth = (selMode === 'select' && isSel) ? 2.5 : isHov ? 2.2 : 1.5; ctx.stroke()
 
-    // Badge
-    const badgeSize = Math.max(10, 12 * cam.scale)
-    ctx.font = `${badgeSize}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-    ctx.fillStyle = isLight ? 'rgba(250,249,245,0.95)' : 'rgba(255,255,255,0.90)'
-    ctx.fillRect(sx + hw - badgeSize * 1.45, sy - hh + 2, badgeSize * 1.45, badgeSize * 1.25)
-    ctx.fillStyle = selMode === 'select' && isSel ? '#16a34a' : '#e05080'
-    ctx.fillText(selMode === 'select' ? (isSel ? '✓' : '○') : '♥', sx + hw - badgeSize * 0.72, sy - hh + badgeSize * 0.68)
+    // Badge: 選択モード中は常に表示、通常はお気に入りのみ♥
+    const isFav = favorites.has(nodes[i].id)
+    const showBadge = selMode === 'select' || isFav
+    if (showBadge) {
+      const badgeSize = Math.max(10, 12 * cam.scale)
+      ctx.font = `${badgeSize}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillStyle = isLight ? 'rgba(250,249,245,0.95)' : 'rgba(255,255,255,0.90)'
+      ctx.fillRect(sx + hw - badgeSize * 1.45, sy - hh + 2, badgeSize * 1.45, badgeSize * 1.25)
+      ctx.fillStyle = selMode === 'select' && isSel ? '#16a34a' : '#e05080'
+      ctx.fillText(selMode === 'select' ? (isSel ? '✓' : '○') : '♥', sx + hw - badgeSize * 0.72, sy - hh + badgeSize * 0.68)
+    }
 
     // Title
     if (cam.scale > 0.45) {
@@ -372,7 +377,7 @@ function renderFrame(canvas, nodes, edges, cam, hovIdx, selMode, selIds, theme =
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function FavoritesMap({ mangaData, favorites, onClose, onSelect, isMobile = false, theme = 'light' }) {
+export default function FavoritesMap({ mangaData, favorites, viewed = new Set(), onClearViewed, onClose, onSelect, isMobile = false, theme = 'light' }) {
   const canvasRef = useRef()
   const nodesRef  = useRef([])
   const edgesRef  = useRef([])
@@ -381,11 +386,17 @@ export default function FavoritesMap({ mangaData, favorites, onClose, onSelect, 
   const dragRef   = useRef(null)
   const panRef    = useRef(null)
   const hovRef    = useRef(-1)
-  const dirtyRef  = useRef(true)   // true = needs a render this frame
-  const themeRef  = useRef(theme)
+  const dirtyRef           = useRef(true)   // true = needs a render this frame
+  const themeRef           = useRef(theme)
+  const physicsCountdownRef = useRef(0)     // >0 = run physics this many more frames
+  const favoritesRef        = useRef(favorites)
 
   // theme が変わったら ref を同期して再描画フラグを立てる
   useEffect(() => { themeRef.current = theme; dirtyRef.current = true }, [theme])
+  useEffect(() => { favoritesRef.current = favorites; dirtyRef.current = true }, [favorites])
+
+  // Map tab: which dataset to show in the canvas/views
+  const [mapTab, setMapTab] = useState('favorites')  // 'favorites' | 'viewed'
 
   // View mode
   const [viewMode, setViewMode] = useState('network')    // 'network' | 'shelf' | 'timeline' | 'bubble'
@@ -417,7 +428,9 @@ export default function FavoritesMap({ mangaData, favorites, onClose, onSelect, 
   function selectAllRec()  { const s = new Set(favManga.map(m => m.id)); recSelectedRef.current = s; setRecSelected(s) }
   function clearRecSel()   { recSelectedRef.current = new Set(); setRecSelected(new Set()) }
 
-  const favManga = useMemo(() => mangaData.filter(m => favorites.has(m.id)), [mangaData, favorites])
+  const favManga    = useMemo(() => mangaData.filter(m => favorites.has(m.id)), [mangaData, favorites])
+  const viewedManga = useMemo(() => mangaData.filter(m => viewed.has(m.id)),   [mangaData, viewed])
+  const canvasManga = mapTab === 'viewed' ? viewedManga : favManga
 
   // When switching to select mode, pre-select all
   function enterSelectMode() {
@@ -441,26 +454,30 @@ export default function FavoritesMap({ mangaData, favorites, onClose, onSelect, 
 
   // ── Node initialization ───────────────────────────────────────────────────
   useEffect(() => {
-    if (favManga.length === 0) { nodesRef.current = []; edgesRef.current = []; return }
-    const r = Math.max(180, favManga.length * 28)
+    if (canvasManga.length === 0) { nodesRef.current = []; edgesRef.current = []; dirtyRef.current = true; return }
+    const r = Math.max(180, canvasManga.length * 28)
     const existMap = new Map(nodesRef.current.map(n => [n.id, n]))
-    nodesRef.current = favManga.map((m, i) => {
+    nodesRef.current = canvasManga.map((m, i) => {
       const ex = existMap.get(m.id)
       if (ex) return { ...ex, manga: m }
-      const a = (i / favManga.length) * Math.PI * 2
+      const a = (i / canvasManga.length) * Math.PI * 2
       return { id: m.id, manga: m, x: Math.cos(a) * r + (Math.random() - .5) * 30, y: Math.sin(a) * r + (Math.random() - .5) * 30, vx: 0, vy: 0 }
     })
     const edges = []
-    for (let i = 0; i < favManga.length; i++)
-      for (let j = i + 1; j < favManga.length; j++) {
-        const s = cosineSim(favManga[i], favManga[j]); if (s > MIN_SIM) edges.push({ i, j, sim: s })
+    for (let i = 0; i < canvasManga.length; i++)
+      for (let j = i + 1; j < canvasManga.length; j++) {
+        const s = cosineSim(canvasManga[i], canvasManga[j]); if (s > MIN_SIM) edges.push({ i, j, sim: s })
       }
     edgesRef.current = edges
-    for (const m of favManga) { const url = getCoverUrl(m); if (url) requestImage(m.id, url) }
+    for (const m of canvasManga) { const url = getCoverUrl(m); if (url) requestImage(m.id, url) }
+    // 同期的に物理演算を回してレイアウトを確定させてから速度をゼロに
+    const ns = nodesRef.current, es = edgesRef.current
+    for (const n of ns) { n.vx = (Math.random() - 0.5) * 1.5; n.vy = (Math.random() - 0.5) * 1.5 }
+    for (let i = 0; i < 600; i++) { if (!physicsStep(ns, es, -1)) break }
+    for (const n of ns) { n.vx = 0; n.vy = 0 }
+    physicsCountdownRef.current = 0
     dirtyRef.current = true
-    // Give nodes initial velocity so physics engages from start
-    for (const n of nodesRef.current) { n.vx = (Math.random() - 0.5) * 2; n.vy = (Math.random() - 0.5) * 2 }
-  }, [favManga])
+  }, [canvasManga])  // eslint-disable-line
 
   // ── RAF loop ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -472,10 +489,16 @@ export default function FavoritesMap({ mangaData, favorites, onClose, onSelect, 
         const nodes = nodesRef.current
         const dragIdx = dragRef.current ? dragRef.current.idx : -1
         if (nodes.length > 0) {
-          const moving = physicsStep(nodes, edgesRef.current, dragIdx)
-          if (moving) dirtyRef.current = true
+          // ドラッグ中はカウントダウンをリセットして物理を継続
+          if (dragIdx >= 0) physicsCountdownRef.current = 90
+          if (physicsCountdownRef.current > 0) {
+            const moving = physicsStep(nodes, edgesRef.current, dragIdx)
+            if (moving) dirtyRef.current = true
+            else physicsCountdownRef.current = 0
+            if (dragIdx < 0) physicsCountdownRef.current--
+          }
           if (dirtyRef.current) {
-            renderFrame(canvas, nodes, edgesRef.current, camRef.current, hovRef.current, recModeRef.current, recSelectedRef.current, themeRef.current)
+            renderFrame(canvas, nodes, edgesRef.current, camRef.current, hovRef.current, recModeRef.current, recSelectedRef.current, themeRef.current, favoritesRef.current)
             dirtyRef.current = false
           }
         } else {
@@ -502,7 +525,7 @@ export default function FavoritesMap({ mangaData, favorites, onClose, onSelect, 
       // instead of waiting for the next RAF tick (prevents 1-frame flash)
       const nodes = nodesRef.current
       if (nodes.length > 0) {
-        renderFrame(c, nodes, edgesRef.current, camRef.current, hovRef.current, recModeRef.current, recSelectedRef.current, themeRef.current)
+        renderFrame(c, nodes, edgesRef.current, camRef.current, hovRef.current, recModeRef.current, recSelectedRef.current, themeRef.current, favoritesRef.current)
       } else {
         const ctx = c.getContext('2d')
         drawFavBackground(ctx, c.width, c.height, camRef.current, themeRef.current)
@@ -641,15 +664,34 @@ export default function FavoritesMap({ mangaData, favorites, onClose, onSelect, 
         background: uiHeaderBg, borderBottom: `1px solid ${uiBorder}`, backdropFilter: 'blur(18px)',
         boxShadow: isLightUI ? '0 1px 10px rgba(15,23,42,0.08)' : '0 1px 12px rgba(0,0,0,0.3)',
       }}>
-        {/* 上段: タイトル + シェア + 閉じる */}
+        {/* 上段: タブ切替 + シェア + 閉じる */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: isMobile ? '10px 14px 8px' : '11px 18px' }}>
-          <span style={{ fontSize: isMobile ? 14 : 16, color: favAccent }}>♥</span>
-          <span style={{ fontSize: isMobile ? 13 : 14, fontWeight: 700, color: uiText, letterSpacing: '0.05em' }}>お気に入りマップ</span>
-          <span style={{ fontSize: 11, fontWeight: 700, color: favAccent, background: isLightUI ? 'rgba(196,48,48,0.08)' : 'rgba(244,114,182,0.12)', border: `1px solid ${isLightUI ? 'rgba(196,48,48,0.25)' : 'rgba(244,114,182,0.3)'}`, borderRadius: 7, padding: '2px 9px' }}>
-            {favManga.length} 作品
-          </span>
+          {/* Tab: お気に入り */}
+          {[
+            { key: 'favorites', icon: '♥', label: 'お気に入り', count: favManga.length,   accent: favAccent,                                         accentBg: isLightUI ? 'rgba(196,48,48,0.09)'    : 'rgba(244,114,182,0.14)', accentBd: isLightUI ? 'rgba(196,48,48,0.30)'    : 'rgba(244,114,182,0.35)' },
+            { key: 'viewed',    icon: '◷', label: '閲覧済み',   count: viewedManga.length, accent: isLightUI ? '#0891b2' : '#38bdf8',                 accentBg: isLightUI ? 'rgba(8,145,178,0.09)'   : 'rgba(56,189,248,0.14)',  accentBd: isLightUI ? 'rgba(8,145,178,0.30)'   : 'rgba(56,189,248,0.35)'  },
+          ].map(({ key, icon, label, count, accent, accentBg, accentBd }) => {
+            const active = mapTab === key
+            return (
+              <button key={key} onClick={() => { setMapTab(key); if (key !== 'favorites') setSide(null) }} style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '5px 12px', borderRadius: 8, cursor: 'pointer',
+                background: active ? accentBg : 'transparent',
+                border: `1px solid ${active ? accentBd : 'transparent'}`,
+                color: active ? accent : uiMuted,
+                fontSize: isMobile ? 12 : 13, fontWeight: active ? 700 : 500,
+                transition: 'all 0.15s',
+              }}>
+                <span>{icon}</span>
+                <span>{label}</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: accent, background: active ? accentBg : (isLightUI ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)'), border: `1px solid ${active ? accentBd : uiBorder}`, borderRadius: 5, padding: '1px 7px' }}>
+                  {count}
+                </span>
+              </button>
+            )
+          })}
           <div style={{ flex: 1 }} />
-          {!isMobile && (
+          {!isMobile && mapTab === 'favorites' && (
             <button
               onClick={handleShare} disabled={favManga.length === 0}
               style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 9, background: isLightUI ? '#faf9f5' : 'rgba(255,255,255,0.04)', border: `1px solid ${uiBorder}`, color: favManga.length === 0 ? (isLightUI ? '#c0bdb8' : '#374151') : uiSub, cursor: favManga.length === 0 ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 700 }}
@@ -665,65 +707,125 @@ export default function FavoritesMap({ mangaData, favorites, onClose, onSelect, 
         </div>
 
         {/* 下段: ビュー切替 + サイドパネルタブ */}
-        <div style={{ display: 'flex', alignItems: 'stretch', gap: isMobile ? 0 : 6, padding: isMobile ? '0' : '0 18px 10px', borderTop: `1px solid ${uiBorder}` }}>
-          {/* View mode switcher */}
-          {[
-            { key: 'network',  icon: '◎', label: 'ネットワーク' },
-            { key: 'shelf',    icon: '⊞', label: '本棚' },
-            { key: 'timeline', icon: '≡', label: '年表' },
-            { key: 'bubble',   icon: '◉', label: 'タグ' },
-          ].map(({ key, icon, label }) => (
-            <button key={key} onClick={() => setViewMode(key)} style={{
-              flex: isMobile ? 1 : undefined,
-              display: 'flex', alignItems: 'center', justifyContent: isMobile ? 'center' : 'flex-start', gap: isMobile ? 4 : 5,
-              padding: isMobile ? '11px 0' : '7px 12px',
-              borderRadius: isMobile ? 0 : 8,
-              background: viewMode === key ? (isLightUI ? 'rgba(196,48,48,0.10)' : 'rgba(244,114,182,0.12)') : 'transparent',
-              border: isMobile ? 'none' : `1px solid ${viewMode === key ? favAccent : uiBorder}`,
-              borderBottom: isMobile ? `2px solid ${viewMode === key ? favAccent : 'transparent'}` : undefined,
-              color: viewMode === key ? favAccent : uiMuted,
-              cursor: 'pointer', fontSize: isMobile ? 12 : 11, fontWeight: 700,
-            }}>
-              <span style={{ fontSize: isMobile ? 14 : 12 }}>{icon}</span>
-              {(!isMobile || true) && <span>{label}</span>}
-            </button>
-          ))}
+        {isMobile ? (
+          /* ── モバイル: スクロール可能なピル型タブバー ── */
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+            padding: '8px 12px', overflowX: 'auto',
+            borderTop: `1px solid ${uiBorder}`,
+            background: isLightUI ? '#faf9f5' : '#0d1117',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
+          }}>
+            {[
+              { key: 'network',  icon: '◎', label: 'ネットワーク', type: 'view' },
+              { key: 'shelf',    icon: '⊞', label: '本棚',         type: 'view' },
+              { key: 'timeline', icon: '≡', label: '年表',         type: 'view' },
+              { key: 'bubble',   icon: '◉', label: 'タグ',         type: 'view' },
+            ].map(({ key, icon, label }) => {
+              const active = viewMode === key
+              return (
+                <button key={key} onClick={() => setViewMode(key)} style={{
+                  flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5,
+                  padding: '6px 13px', borderRadius: 20, cursor: 'pointer',
+                  background: active
+                    ? (isLightUI ? 'rgba(196,48,48,0.12)' : 'rgba(244,114,182,0.15)')
+                    : (isLightUI ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.05)'),
+                  border: `1px solid ${active ? favAccent + '55' : uiBorder}`,
+                  color: active ? favAccent : uiMuted,
+                  fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
+                  transition: 'all 0.15s',
+                }}>
+                  <span style={{ fontSize: 13 }}>{icon}</span>
+                  <span>{label}</span>
+                </button>
+              )
+            })}
 
-          {/* Divider */}
-          <div style={{ width: 1, background: uiBorder, flexShrink: 0, margin: isMobile ? '8px 0' : '0' }} />
+            {mapTab === 'favorites' && (
+              <div style={{ width: 1, height: 20, background: uiBorder, flexShrink: 0, margin: '0 2px' }} />
+            )}
 
-          {/* Side panel tabs */}
-          {[
-            { key: 'recommend', icon: '✨', label: isMobile ? 'おすすめ' : 'おすすめ' },
-            { key: 'analysis',  icon: '📊', label: isMobile ? '分析' : '趣味分析' },
-          ].map(({ key, icon, label }) => (
-            <button key={key} onClick={() => toggleSide(key)} style={{
-              flex: isMobile ? 1 : undefined,
-              display: 'flex', alignItems: 'center', justifyContent: isMobile ? 'center' : 'flex-start', gap: isMobile ? 4 : 5,
-              padding: isMobile ? '11px 0' : '7px 12px',
-              borderRadius: isMobile ? 0 : 8,
-              background: sidePanel === key ? (isLightUI ? 'rgba(99,102,241,0.10)' : 'rgba(129,140,248,0.12)') : 'transparent',
-              border: isMobile ? 'none' : `1px solid ${sidePanel === key ? (isLightUI ? '#6366f1' : '#818cf8') : uiBorder}`,
-              borderBottom: isMobile ? `2px solid ${sidePanel === key ? (isLightUI ? '#6366f1' : '#818cf8') : 'transparent'}` : undefined,
-              color: sidePanel === key ? (isLightUI ? '#6366f1' : '#818cf8') : uiMuted,
-              cursor: 'pointer', fontSize: isMobile ? 12 : 11, fontWeight: 700,
-            }}>
-              <span>{icon}</span> {label}
-            </button>
-          ))}
+            {mapTab === 'favorites' && [
+              { key: 'recommend', icon: '✨', label: 'おすすめ' },
+              { key: 'analysis',  icon: '📊', label: '分析' },
+            ].map(({ key, icon, label }) => {
+              const active = sidePanel === key
+              const ac = isLightUI ? '#6366f1' : '#818cf8'
+              return (
+                <button key={key} onClick={() => toggleSide(key)} style={{
+                  flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5,
+                  padding: '6px 13px', borderRadius: 20, cursor: 'pointer',
+                  background: active
+                    ? (isLightUI ? 'rgba(99,102,241,0.12)' : 'rgba(129,140,248,0.15)')
+                    : (isLightUI ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.05)'),
+                  border: `1px solid ${active ? ac + '66' : uiBorder}`,
+                  color: active ? ac : uiMuted,
+                  fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
+                  transition: 'all 0.15s',
+                }}>
+                  <span>{icon}</span>
+                  <span>{label}</span>
+                </button>
+              )
+            })}
 
-          {isMobile && (
-            <button onClick={handleShare} disabled={favManga.length === 0} style={{
-              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-              padding: '11px 0', border: 'none', borderBottom: '2px solid transparent',
-              background: 'transparent',
-              color: favManga.length === 0 ? (isLightUI ? '#c0bdb8' : '#374151') : uiMuted,
-              cursor: favManga.length === 0 ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 700,
-            }}>
-              <span>🔗</span> シェア
-            </button>
-          )}
-        </div>
+            {mapTab === 'favorites' && (
+              <button onClick={handleShare} disabled={favManga.length === 0} style={{
+                flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5,
+                padding: '6px 13px', borderRadius: 20, cursor: favManga.length === 0 ? 'not-allowed' : 'pointer',
+                background: isLightUI ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.05)',
+                border: `1px solid ${uiBorder}`,
+                color: favManga.length === 0 ? (isLightUI ? '#c0bdb8' : '#374151') : uiMuted,
+                fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
+                transition: 'all 0.15s',
+              }}>
+                <span>🔗</span>
+                <span>シェア</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          /* ── デスクトップ: 従来レイアウト ── */
+          <div style={{ display: 'flex', alignItems: 'stretch', gap: 6, padding: '0 18px 10px', borderTop: `1px solid ${uiBorder}` }}>
+            {[
+              { key: 'network',  icon: '◎', label: 'ネットワーク' },
+              { key: 'shelf',    icon: '⊞', label: '本棚' },
+              { key: 'timeline', icon: '≡', label: '年表' },
+              { key: 'bubble',   icon: '◉', label: 'タグ' },
+            ].map(({ key, icon, label }) => (
+              <button key={key} onClick={() => setViewMode(key)} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 5,
+                padding: '7px 12px', borderRadius: 8,
+                background: viewMode === key ? (isLightUI ? 'rgba(196,48,48,0.10)' : 'rgba(244,114,182,0.12)') : 'transparent',
+                border: `1px solid ${viewMode === key ? favAccent : uiBorder}`,
+                color: viewMode === key ? favAccent : uiMuted,
+                cursor: 'pointer', fontSize: 11, fontWeight: 700,
+              }}>
+                <span style={{ fontSize: 12 }}>{icon}</span>
+                <span>{label}</span>
+              </button>
+            ))}
+
+            {mapTab === 'favorites' && <div style={{ width: 1, background: uiBorder, flexShrink: 0 }} />}
+
+            {mapTab === 'favorites' && [
+              { key: 'recommend', icon: '✨', label: 'おすすめ' },
+              { key: 'analysis',  icon: '📊', label: '趣味分析' },
+            ].map(({ key, icon, label }) => (
+              <button key={key} onClick={() => toggleSide(key)} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 5,
+                padding: '7px 12px', borderRadius: 8,
+                background: sidePanel === key ? (isLightUI ? 'rgba(99,102,241,0.10)' : 'rgba(129,140,248,0.12)') : 'transparent',
+                border: `1px solid ${sidePanel === key ? (isLightUI ? '#6366f1' : '#818cf8') : uiBorder}`,
+                color: sidePanel === key ? (isLightUI ? '#6366f1' : '#818cf8') : uiMuted,
+                cursor: 'pointer', fontSize: 11, fontWeight: 700,
+              }}>
+                <span>{icon}</span> {label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── Body ── */}
@@ -732,13 +834,13 @@ export default function FavoritesMap({ mangaData, favorites, onClose, onSelect, 
         {/* Main view area */}
         <div style={{
           flex: 1, position: 'relative', overflow: 'hidden',
-          display: (sidePanel && !effectiveSplit) ? 'none' : 'flex',
+          display: (sidePanel && !effectiveSplit && mapTab === 'favorites') ? 'none' : 'flex',
           flexDirection: 'column',
         }}>
           {/* Shelf / Timeline / Bubble views */}
-          {viewMode === 'shelf' && <ShelfView favManga={favManga} onSelect={onSelect} isMobile={isMobile} />}
-          {viewMode === 'timeline' && <TimelineView favManga={favManga} onSelect={onSelect} isMobile={isMobile} />}
-          {viewMode === 'bubble' && <TagBubbleView favManga={favManga} onSelect={onSelect} isMobile={isMobile} />}
+          {viewMode === 'shelf' && <ShelfView favManga={canvasManga} onSelect={onSelect} isMobile={isMobile} />}
+          {viewMode === 'timeline' && <TimelineView favManga={canvasManga} onSelect={onSelect} isMobile={isMobile} />}
+          {viewMode === 'bubble' && <TagBubbleView favManga={canvasManga} onSelect={onSelect} isMobile={isMobile} />}
 
           {/* Network canvas (hidden when other view active) */}
           <div style={{ flex: 1, position: 'relative', display: viewMode === 'network' ? 'block' : 'none' }}>
@@ -757,11 +859,15 @@ export default function FavoritesMap({ mangaData, favorites, onClose, onSelect, 
               </span>
             </div>
           )}
-          {favManga.length === 0 && (
+          {canvasManga.length === 0 && (
             <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, pointerEvents: 'none', userSelect: 'none' }}>
-              <div style={{ fontSize: 52, opacity: 0.2 }}>♡</div>
-              <div style={{ fontSize: 15, color: '#8a8880', fontWeight: 600 }}>お気に入り作品がありません</div>
-              <div style={{ fontSize: 12, color: '#c0bdb8' }}>詳細パネルの ♥ ボタンで作品を追加してください</div>
+              <div style={{ fontSize: 52, opacity: 0.2 }}>{mapTab === 'viewed' ? '◷' : '♡'}</div>
+              <div style={{ fontSize: 15, color: '#8a8880', fontWeight: 600 }}>
+                {mapTab === 'viewed' ? '閲覧済み作品がありません' : 'お気に入り作品がありません'}
+              </div>
+              <div style={{ fontSize: 12, color: '#c0bdb8' }}>
+                {mapTab === 'viewed' ? '作品をクリックすると自動的に記録されます' : '詳細パネルの ♥ ボタンで作品を追加してください'}
+              </div>
             </div>
           )}
           <canvas
@@ -775,7 +881,7 @@ export default function FavoritesMap({ mangaData, favorites, onClose, onSelect, 
         </div>{/* end main view area */}
 
         {/* ── Analysis panel ── */}
-        {sidePanel === 'analysis' && (
+        {mapTab === 'favorites' && sidePanel === 'analysis' && (
           <div style={{
             width: effectiveSplit ? 460 : undefined, flex: effectiveSplit ? undefined : 1,
             flexShrink: 0, overflowY: 'auto',
@@ -792,7 +898,7 @@ export default function FavoritesMap({ mangaData, favorites, onClose, onSelect, 
         )}
 
         {/* ── Recommend panel ── */}
-        {sidePanel === 'recommend' && (
+        {mapTab === 'favorites' && sidePanel === 'recommend' && (
           <div style={{
             width: effectiveSplit ? 460 : undefined, flex: effectiveSplit ? undefined : 1,
             flexShrink: 0, overflowY: 'auto',
@@ -921,7 +1027,7 @@ function ShelfView({ favManga, onSelect, isMobile }) {
                   background: active ? color + '20' : '#faf9f5',
                   border: `1px solid ${active ? color : '#e0ddd8'}`,
                   color: active ? color : '#8a8880',
-                }}>{tag}</button>
+                }}>{getTagLabel(tag)}</button>
               )
             })}
           </div>
@@ -1086,7 +1192,7 @@ function TagBubbleView({ favManga, onSelect, isMobile }) {
             <button
               key={name}
               onClick={() => setActiveTag(active ? null : name)}
-              title={`${name}  ×${count}作品`}
+              title={`${getTagLabel(name)}  ×${count}作品`}
               style={{
                 width: size, height: size, borderRadius: '50%',
                 background: active ? color + 'aa' : color + '22',
@@ -1106,7 +1212,7 @@ function TagBubbleView({ favManga, onSelect, isMobile }) {
               onMouseEnter={e => { if (!active) { e.currentTarget.style.background = color + '44'; e.currentTarget.style.boxShadow = `0 0 14px ${color}55` } }}
               onMouseLeave={e => { if (!active) { e.currentTarget.style.background = color + '22'; e.currentTarget.style.boxShadow = `0 0 6px ${color}22` } }}
             >
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '90%' }}>{name}</span>
+              <span style={{ overflow: 'hidden', wordBreak: 'break-all', maxWidth: '90%', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{getTagLabel(name)}</span>
               <span style={{ fontSize: Math.max(7, Math.round(size * 0.14)), opacity: 0.75 }}>×{count}</span>
             </button>
           )
@@ -1117,7 +1223,7 @@ function TagBubbleView({ favManga, onSelect, isMobile }) {
       {activeTag && (
         <div style={{ flex: 1, borderTop: '1px solid #e8e6df', overflowY: 'auto' }}>
           <div style={{ padding: isMobile ? '10px 14px 6px' : '12px 20px 8px', fontSize: 11, color: '#c43030', fontWeight: 700, letterSpacing: '0.06em' }}>
-            {activeTag} — {filtered.length}作品
+            {getTagLabel(activeTag)} — {filtered.length}作品
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${isMobile ? 70 : 88}px, 1fr))`, gap: isMobile ? 8 : 10, padding: isMobile ? '0 14px 20px' : '0 20px 24px' }}>
             {filtered.map(m => {
@@ -1386,7 +1492,7 @@ function RecommendContent({ favManga, recMode, recSelected, recommendations, onE
                             color: rc, fontWeight: 700, letterSpacing: '0.03em',
                             boxShadow: `0 0 6px ${rc}28`,
                           }}>
-                            {r.name}
+                            {getTagLabel(r.name)}
                           </span>
                         )
                       })}
@@ -1493,9 +1599,10 @@ function RadarChart({ genres, size = 260 }) {
       ctx.font = `bold 8px monospace`
       ctx.textAlign    = lx < cx - 4 ? 'right' : lx > cx + 4 ? 'left' : 'center'
       ctx.textBaseline = ly < cy - 4 ? 'bottom' : ly > cy + 4 ? 'top' : 'middle'
-      const label = genres[i][0].length > 9 ? genres[i][0].slice(0, 9) + '…' : genres[i][0]
+      const raw = getTagLabel(genres[i][0])
+      const label = raw.length > 9 ? raw.slice(0, 9) + '…' : raw
       ctx.fillStyle = color
-      ctx.fillText(label.toUpperCase(), lx, ly)
+      ctx.fillText(label, lx, ly)
     }
   }, [genres, size])
 
@@ -1666,7 +1773,7 @@ function AnalysisContent({ analysis, favManga, splitMode, onToggleSplit, onBack,
                   background: color + '0c', border: `1px solid ${color}2a`,
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: color, textShadow: `0 0 10px ${color}55` }}>{genre}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: color, textShadow: `0 0 10px ${color}55` }}>{getTagLabel(genre)}</span>
                     <span style={{ fontSize: 11, color: color + 'aa', fontFamily: 'monospace', fontWeight: 700 }}>{cnt}</span>
                   </div>
                   <PixelMeter value={cnt} maxValue={maxCnt} color={color} blocks={isMobile ? 10 : 12} />
@@ -1700,7 +1807,7 @@ function AnalysisContent({ analysis, favManga, splitMode, onToggleSplit, onBack,
                     letterSpacing: '0.02em', lineHeight: 1.3,
                     flex: 1, marginRight: 4,
                   }}>
-                    {t.name}
+                    {getTagLabel(t.name)}
                   </span>
                   <div style={{
                     flexShrink: 0, padding: '2px 6px', borderRadius: 20,

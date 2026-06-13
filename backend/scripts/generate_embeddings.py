@@ -29,6 +29,7 @@ DATA_FILE    = BACKEND_DIR / "data" / "manga_data.json"
 OUTPUT_DIR  = BACKEND_DIR / "output"
 OUTPUT_FILE = OUTPUT_DIR / "manga_map.json"
 FRONTEND_PUBLIC = BACKEND_DIR.parent / "frontend" / "public" / "manga_map.json"
+MODEL_DIR   = BACKEND_DIR / "data" / "model"   # 差分同期用モデルアーティファクト
 
 # データ件数に応じて動的に決定（main() 内で上書き）
 N_NEIGHBORS  = 15   # kNN の近傍数（フォールバック値）
@@ -164,15 +165,23 @@ def run_umap(mat, knn_idx, knn_dist, n_neighbors):
         reducer = umap.UMAP(**kwargs)
 
     print("  UMAP 3D 計算中 …")
-    coords = reducer.fit_transform(mat)
+    raw_coords = reducer.fit_transform(mat)
 
+    # 正規化パラメータを保存（差分同期で新規点に同じスケールを適用するため）
+    norm_params = []
     for axis in range(3):
-        col = coords[:, axis]
-        r   = col.max() - col.min()
-        if r > 0:
-            coords[:, axis] = (col - col.min()) / r * 10 - 5
+        col  = raw_coords[:, axis]
+        vmin = float(col.min())
+        vmax = float(col.max())
+        norm_params.append({"min": vmin, "max": vmax, "range": float(vmax - vmin)})
 
-    return coords
+    coords = raw_coords.copy()
+    for axis in range(3):
+        p = norm_params[axis]
+        if p["range"] > 0:
+            coords[:, axis] = (raw_coords[:, axis] - p["min"]) / p["range"] * 10 - 5
+
+    return coords, reducer, norm_params
 
 # ── クラスタリング ────────────────────────────────────────────────────────────
 
@@ -311,13 +320,42 @@ def main():
     knn_idx, knn_dist = compute_knn(mat, n_neighbors)
 
     print("\n[4/5] UMAP 3D …")
-    coords = run_umap(mat, knn_idx, knn_dist, n_neighbors)
+    coords, reducer, norm_params = run_umap(mat, knn_idx, knn_dist, n_neighbors)
     print("  ✓ UMAP 完了")
 
     print("\n[5/5] クラスタリング …")
     labels   = cluster_coords(coords, n_clusters)
     clusters = build_cluster_info(manga_list, coords, labels, tag_idf)
     print(f"  ✓ {len(clusters)} クラスタ構築")
+
+    # ── モデルアーティファクト保存（差分同期 sync_anilist.py 用）──────────────
+    import pickle
+    import numpy as np
+
+    MODEL_DIR.mkdir(parents=True, exist_ok=True)
+
+    with open(MODEL_DIR / "umap_model.pkl", "wb") as f:
+        pickle.dump(reducer, f, protocol=4)
+    print("  ✓ umap_model.pkl 保存")
+
+    with open(MODEL_DIR / "norm_params.json", "w", encoding="utf-8") as f:
+        json.dump(norm_params, f)
+    print("  ✓ norm_params.json 保存")
+
+    # タグ語彙（IDF と同じ sorted(idf.keys())）
+    tag_vocab = sorted(tag_idf.keys())
+    with open(MODEL_DIR / "tag_vocab.json", "w", encoding="utf-8") as f:
+        json.dump(tag_vocab, f, ensure_ascii=False)
+    print(f"  ✓ tag_vocab.json ({len(tag_vocab)} タグ)")
+
+    # 正規化済み 3D 座標行列（新規点の kNN に使用）
+    np.save(MODEL_DIR / "coords.npy", coords.astype(np.float32))
+
+    # 座標と対応する ID リスト（インデックスの対応を保つ）
+    manga_ids = [m["id"] for m in manga_list]
+    with open(MODEL_DIR / "manga_ids.json", "w", encoding="utf-8") as f:
+        json.dump(manga_ids, f)
+    print(f"  ✓ coords.npy / manga_ids.json ({len(manga_ids)} 件)")
 
     # 出力
     OUTPUT_DIR.mkdir(exist_ok=True)

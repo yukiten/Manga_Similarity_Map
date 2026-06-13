@@ -3,7 +3,11 @@ backend/output/manga_map.json
 backend/data/merged.json
 backend/data/sources/
 frontend/public/manga_map.json
+frontend/public/manga_map_light.json
+frontend/public/manga_map_light.json.gz
 frontend/dist/manga_map.json
+frontend/dist/manga_map_light.json
+frontend/dist/manga_map_light.json.gz
 
 # ── ビルド成果物 ────────────────────────────────────────────────────────────
 frontend/dist/
@@ -33,11 +37,22 @@ env/
 Thumbs.db
 desktop.ini
 
-# ── エディタ ─────────────────────────────────────────────────────────────────
+# ── エディタ / AI ツール ─────────────────────────────────────────────────────
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 
+# ── バックアップファイル ────────────────────────────────────────────────────
+*.bak_*
+
+# ── 作業用テキスト ─────────────────────────────────────────────────────────
+ok_volume.txt
+wrong_volume.txt
+
 # ── コミュニティDB（ユーザーデータを含むため除外） ──────────────────────────
 backend/data/community.db
+
+# ── レポート出力 ────────────────────────────────────────────────────────────
+openbd_reports/

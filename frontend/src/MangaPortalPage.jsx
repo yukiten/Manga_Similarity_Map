@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getTagColor } from './utils'
 import { getCoverUrl } from './lib/imageSource'
+import { updateSeoTags, setWebPageJsonLd, cleanupSeoTags } from './lib/seo'
 
 const RANKING_COUNT = 30
 
@@ -29,9 +30,17 @@ export default function MangaPortalPage() {
   const inputRef  = useRef(null)
 
   useEffect(() => {
-    document.title = 'マンガ — ランキング・セール | Media Map'
+    updateSeoTags({
+      title: 'マンガ — ランキング・セール | Media Map',
+      description: '人気マンガのランキング・セール情報と類似作品マップ。タグやジャンルで繋がる作品をAIが分析し、次に読む一冊を見つけよう。',
+    })
+    setWebPageJsonLd({
+      name: 'マンガ — ランキング・セール | Media Map',
+      description: '人気マンガのランキング・セール情報と類似作品マップ',
+    })
+    return () => cleanupSeoTags()
     Promise.all([
-      fetch('/manga_map.json').then(r => r.json()),
+      fetch('/manga_map_light.json').then(r => r.json()),
       fetch('/sales.json').then(r => r.json()).catch(() => []),
     ]).then(([manga, salesData]) => {
       const top = [...manga]
@@ -64,7 +73,7 @@ export default function MangaPortalPage() {
     return () => document.removeEventListener('mousedown', h)
   }, [])
 
-  function pick(manga) { setDropOpen(false); setQuery(''); navigate(`/manga/map?id=${manga.id}`) }
+  function pick(manga) { setDropOpen(false); setQuery(''); navigate(`/manga/map?slug=${manga.slug}`) }
   function onSubmit(e) { e.preventDefault(); if (results[0]) pick(results[0]) }
 
   return (
@@ -244,7 +253,7 @@ export default function MangaPortalPage() {
             }}>
               {rankings.slice(0, 3).map((manga, i) => (
                 <TopCard key={manga.id} manga={manga} rank={i + 1}
-                  onClick={() => navigate(`/manga/map?id=${manga.id}`)} />
+                  onClick={() => navigate(`/manga/map?slug=${manga.slug}`)} />
               ))}
             </div>
 
@@ -270,7 +279,7 @@ export default function MangaPortalPage() {
               {rankings.slice(3).map((manga, i) => (
                 <RankingRow key={manga.id} manga={manga} rank={i + 4} isMobile={isMobile}
                   animDelay={i * 0.025}
-                  onClick={() => navigate(`/manga/map?id=${manga.id}`)} />
+                  onClick={() => navigate(`/manga/map?slug=${manga.slug}`)} />
               ))}
             </div>
           </>)}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { getTagLabel, tagMatchesSearch } from '../tagTranslations'
 
 export default function TagSelector({ tagList, selectedTags, onToggleTag, onClearTags, matchCount, totalCount, variant = 'light', panelStrategy = 'absolute', filterMode = 'OR', onFilterModeChange }) {
   const [open, setOpen]     = useState(false)
@@ -74,7 +75,7 @@ export default function TagSelector({ tagList, selectedTags, onToggleTag, onClea
   const filtered = useMemo(() => {
     if (!tagList) return []
     const lower = search.trim().toLowerCase()
-    const list  = lower ? tagList.filter(t => t.name.toLowerCase().includes(lower)) : tagList
+    const list  = lower ? tagList.filter(t => tagMatchesSearch(t.name, lower)) : tagList
     return list.slice(0, 60)
   }, [tagList, search])
 
@@ -89,17 +90,17 @@ export default function TagSelector({ tagList, selectedTags, onToggleTag, onClea
         onClick={() => setOpen(o => !o)}
         style={{
           background: open || hasFilter ? colors.accentBg : colors.bg,
-          border: `1.5px solid ${open || hasFilter ? colors.accentBorder : colors.border}`,
-          borderRadius: 14,
+          border: `1px solid ${open || hasFilter ? colors.accentBorder : colors.border}`,
+          borderRadius: 8,
           color: open || hasFilter ? colors.accent : colors.sub,
-          padding: '13px 18px',
+          padding: '6px 10px',
           cursor: 'pointer',
-          fontSize: 14,
-          fontWeight: 500,
+          fontSize: 11,
+          fontWeight: 600,
           backdropFilter: 'blur(16px)',
           display: 'flex',
           alignItems: 'center',
-          gap: 10,
+          gap: 6,
           transition: 'all 0.2s',
           width: '100%',
           justifyContent: 'space-between',
@@ -109,23 +110,23 @@ export default function TagSelector({ tagList, selectedTags, onToggleTag, onClea
           letterSpacing: '0.01em',
         }}
       >
-        <span style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
           </svg>
           タグで絞り込む
         </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           {hasFilter && (
             <span style={{
               background: colors.accent, color: '#fff',
-              borderRadius: 20, padding: '2px 10px',
-              fontSize: 12, fontWeight: 700, letterSpacing: '0.02em',
+              borderRadius: 20, padding: '1px 7px',
+              fontSize: 10, fontWeight: 700, letterSpacing: '0.02em',
             }}>
               {selectedTags.length}
             </span>
           )}
-          <span style={{ fontSize: 11, opacity: 0.45 }}>{open ? '▲' : '▼'}</span>
+          <span style={{ fontSize: 9, opacity: 0.45 }}>{open ? '▲' : '▼'}</span>
         </div>
       </button>
 
@@ -212,7 +213,7 @@ export default function TagSelector({ tagList, selectedTags, onToggleTag, onClea
                     onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(99,102,241,0.35)' : 'rgba(109,106,248,0.2)'}
                     onMouseLeave={e => e.currentTarget.style.background = colors.accentBg}
                   >
-                    {name} <span style={{ opacity: 0.55, fontSize: 11 }}>✕</span>
+                    {getTagLabel(name)} <span style={{ opacity: 0.55, fontSize: 11 }}>✕</span>
                   </span>
                 ))}
                 <span
@@ -268,7 +269,7 @@ export default function TagSelector({ tagList, selectedTags, onToggleTag, onClea
                       <span style={{ color: colors.accent, fontSize: 13, lineHeight: 1 }}>✓</span>
                     )}
                     <span style={{ fontSize: 14, color: active ? colors.accent : colors.text, fontWeight: active ? 600 : 500 }}>
-                      {tag.name}
+                      {getTagLabel(tag.name)}
                     </span>
                   </div>
                   <span style={{ fontSize: 12, color: colors.muted, fontVariantNumeric: 'tabular-nums' }}>
